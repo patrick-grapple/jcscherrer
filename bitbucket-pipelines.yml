@@ -74,6 +74,6 @@ pipelines:
 
     main:
       - step:
-          name: 'Prep to prd'
+          name: 'Deployment to prd'
           script:
             - echo "PROD"
