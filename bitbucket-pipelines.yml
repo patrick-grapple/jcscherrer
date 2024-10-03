@@ -38,9 +38,6 @@ pipelines:
 
   pull-requests:
     '**': #this runs as default for any branch not elsewhere defined
-      - variables:
-        - name: STAGE # stage=nop but STAGE=pr
-          default: pr
       - step: *cluster
       - step:
           name: 'Deployment of PR to nop'
@@ -50,7 +47,7 @@ pipelines:
             - civo apikey save cloud20x ${civokey} && civo region current ${civoregion} 
             - until [ $(civo k8s show -o custom -f Status ${name}-${stage}) = "ACTIVE" ]; do echo -n "."; sleep 3; done
             - civo k8s config ${name}-${stage} --save --switch
-            - task build-package-push-deploy
+            - task build-package-push-deploy STAGE=pr
           services:
             - docker
 
