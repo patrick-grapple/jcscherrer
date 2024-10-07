@@ -47,6 +47,7 @@ pipelines:
             - civo apikey save cloud20x ${civokey} && civo region current ${civoregion} 
             - until [ $(civo k8s show -o custom -f Status ${name}-${stage}) = "ACTIVE" ]; do echo -n "."; sleep 3; done
             - civo k8s config ${name}-${stage} --save --switch
+            - docker login -u $dockeruser -p $dockerpw 
             - task build-package-push-deploy STAGE=pr
           services:
             - docker
@@ -65,6 +66,7 @@ pipelines:
             - civo apikey save cloud20x ${civokey} && civo region current ${civoregion} 
             - until [ $(civo k8s show -o custom -f Status ${name}-${stage}) = "ACTIVE" ]; do echo -n "."; sleep 3; done
             - civo k8s config ${name}-${stage} --save --switch
+            - docker login -u $dockeruser -p $dockerpw 
             - task build-package-push-deploy
           services:
             - docker
