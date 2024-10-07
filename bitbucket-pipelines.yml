@@ -51,7 +51,7 @@ pipelines:
               - docker login -u $dockeruser -p $dockerpw 
               - task build-package-push-deploy STAGE=pr
               - echo $BITBUCKET_PR_ID > pr_id.txt
-              - git add pr_id.txt && git commit -m "[skip ci] updated PR ID" && git push
+              - git add --force pr_id.txt && git commit -m "[skip ci] updated PR ID" && git push
             services:
               - docker
 
