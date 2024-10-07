@@ -9,8 +9,6 @@ definitions:
   steps:
     - step: &cluster 
         name: 'Prep Cluster'
-        caches:
-          - docker
         script:
           - kubectl version --client=true && helm version && civo version || true
           - civo apikey save grapple ${civokey} && civo region current ${civoregion} 
