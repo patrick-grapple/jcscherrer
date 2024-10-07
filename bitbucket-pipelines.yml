@@ -57,9 +57,6 @@ pipelines:
 
   branches:
     develop:
-      - variables:
-        - name: STAGE # stage=nop but STAGE=uat
-          default: uat
       - parallel:
         - step: *cluster
         - step:
@@ -81,7 +78,7 @@ pipelines:
               - until [ $(civo k8s show -o custom -f Status ${name}-${stage}) = "ACTIVE" ]; do echo -n "."; sleep 3; done
               - civo k8s config ${name}-${stage} --save --switch
               - docker login -u $dockeruser -p $dockerpw 
-              - task build-package-push-deploy
+              - task build-package-push-deploy STAGE=uat
             services:
               - docker
 
