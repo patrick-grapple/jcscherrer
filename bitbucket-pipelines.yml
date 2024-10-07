@@ -38,38 +38,43 @@ pipelines:
 
   pull-requests:
     '**': #this runs as default for any branch not elsewhere defined
-      - step: *cluster
-      - step:
-          name: 'Deployment of PR to nop'
-          caches:
-            - docker
-          script:
-            - civo apikey save cloud20x ${civokey} && civo region current ${civoregion} 
-            - until [ $(civo k8s show -o custom -f Status ${name}-${stage}) = "ACTIVE" ]; do echo -n "."; sleep 3; done
-            - civo k8s config ${name}-${stage} --save --switch
-            - docker login -u $dockeruser -p $dockerpw 
-            - task build-package-push-deploy STAGE=pr
-          services:
-            - docker
+      - variables:
+        - name: STAGE # stage=nop but STAGE=uat
+          default: uat
+      - parallel:
+        - step: *cluster
+        - step:
+            name: 'Deployment of PR to nop'
+            caches:
+              - docker
+            script:
+              - civo apikey save cloud20x ${civokey} && civo region current ${civoregion} 
+              - until [ $(civo k8s show -o custom -f Status ${name}-${stage}) = "ACTIVE" ]; do echo -n "."; sleep 3; done
+              - civo k8s config ${name}-${stage} --save --switch
+              - docker login -u $dockeruser -p $dockerpw 
+              - task build-package-push-deploy STAGE=pr
+            services:
+              - docker
 
   branches:
     develop:
       - variables:
         - name: STAGE # stage=nop but STAGE=uat
           default: uat
-      - step: *cluster
-      - step:
-          name: 'Deployment to UAT'
-          caches:
-            - docker
-          script:
-            - civo apikey save cloud20x ${civokey} && civo region current ${civoregion} 
-            - until [ $(civo k8s show -o custom -f Status ${name}-${stage}) = "ACTIVE" ]; do echo -n "."; sleep 3; done
-            - civo k8s config ${name}-${stage} --save --switch
-            - docker login -u $dockeruser -p $dockerpw 
-            - task build-package-push-deploy
-          services:
-            - docker
+      - parallel:
+        - step: *cluster
+        - step:
+            name: 'Deployment to UAT'
+            caches:
+              - docker
+            script:
+              - civo apikey save cloud20x ${civokey} && civo region current ${civoregion} 
+              - until [ $(civo k8s show -o custom -f Status ${name}-${stage}) = "ACTIVE" ]; do echo -n "."; sleep 3; done
+              - civo k8s config ${name}-${stage} --save --switch
+              - docker login -u $dockeruser -p $dockerpw 
+              - task build-package-push-deploy
+            services:
+              - docker
 
     main:
       - step:
