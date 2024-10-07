@@ -3,7 +3,7 @@
 # -----
 # You can specify a custom docker image from Docker Hub as your build environment.
 
-image: grpl/civo-build-container:v0.12
+image: grpl/civo-build-container:v0.14
 
 definitions: 
   steps:
@@ -16,7 +16,7 @@ definitions:
           - if ! civo k8s show ${name}-${stage} >/dev/null 2>&1; then civo k8s create ${name}-${stage} --size=${civosize} --nodes=${civonodes} ${civoapps} || true; fi
           - until [ $(civo k8s show -o custom -f Status ${name}-${stage}) = "ACTIVE" ]; do echo -n "."; sleep 3; done
           - civo k8s config ${name}-${stage} --save --switch
-          - grpl cluster install --TARGET_PLATFORM=CIVO --CIVO_REGION=${civoregion} --CIVO_CLUSTER=${name}-${stage} --CIVO_EMAIL_ADDRESS=info@grapple-solutions.com --AUTO_CONFIRM=true
+          - if [ "$(kubectl get configuration grpl | grep grpl | awk '{print $2}')" != "True" ] || [ "$(kubectl get configuration grpl | grep grpl | awk '{print $2}')" != "True" ]; then grpl cluster install --TARGET_PLATFORM=CIVO --CIVO_REGION=${civoregion} --CIVO_CLUSTER=${name}-${stage} --CIVO_EMAIL_ADDRESS=info@grapple-solutions.com --AUTO_CONFIRM=true; else echo "grpl is already running"; fi
 
 pipelines:
   
@@ -38,42 +38,56 @@ pipelines:
 
   pull-requests:
     '**': #this runs as default for any branch not elsewhere defined
-      - variables:
-        - name: STAGE # stage=nop but STAGE=pr
-          default: pr
-      - step: *cluster
-      - step:
-          name: 'Deployment of PR to nop'
-          caches:
-            - docker
-          script:
-            - civo apikey save cloud20x ${civokey} && civo region current ${civoregion} 
-            - until [ $(civo k8s show -o custom -f Status ${name}-${stage}) = "ACTIVE" ]; do echo -n "."; sleep 3; done
-            - civo k8s config ${name}-${stage} --save --switch
-            - task build-package-push-deploy
-          services:
-            - docker
+      - parallel:
+        - step: *cluster
+        - step:
+            name: 'Deployment of PR to nop'
+            caches:
+              - docker
+            script:
+              - civo apikey save cloud20x ${civokey} && civo region current ${civoregion} 
+              - until [ $(civo k8s show -o custom -f Status ${name}-${stage}) = "ACTIVE" ]; do echo -n "."; sleep 3; done
+              - civo k8s config ${name}-${stage} --save --switch
+              - docker login -u $dockeruser -p $dockerpw 
+              - task build-package-push-deploy STAGE=pr
+              - echo $BITBUCKET_PR_ID > pr_id.txt
+              - git add pr_id.txt && git commit -m "[skip ci] updated PR ID" && git push
+            services:
+              - docker
 
   branches:
     develop:
       - variables:
         - name: STAGE # stage=nop but STAGE=uat
           default: uat
-      - step: *cluster
-      - step:
-          name: 'Deployment to UAT'
-          caches:
-            - docker
-          script:
-            - civo apikey save cloud20x ${civokey} && civo region current ${civoregion} 
-            - until [ $(civo k8s show -o custom -f Status ${name}-${stage}) = "ACTIVE" ]; do echo -n "."; sleep 3; done
-            - civo k8s config ${name}-${stage} --save --switch
-            - task build-package-push-deploy
-          services:
-            - docker
+      - parallel:
+        - step: *cluster
+        - step:
+            name: 'Cleanup PR deployments'
+            caches:
+              - docker
+            script:
+              - civo apikey save cloud20x ${civokey} && civo region current ${civoregion} 
+              - until [ $(civo k8s show -o custom -f Status ${name}-${stage}) = "ACTIVE" ]; do echo -n "."; sleep 3; done
+              - civo k8s config ${name}-${stage} --save --switch
+              - export re='^[0-9]+$'
+              - if [ -f "pr_id.txt" ] && [[ $(cat pr_id.txt) =~ $re ]] && [ "${PROJECT_NAME_SHORT}" != "" ]; then kubectl delete ns ${PROJECT_NAME_SHORT}-pr-$(cat pr_id.txt); fi
+        - step:
+            name: 'Deployment to UAT'
+            caches:
+              - docker
+            script:
+              - civo apikey save cloud20x ${civokey} && civo region current ${civoregion} 
+              - until [ $(civo k8s show -o custom -f Status ${name}-${stage}) = "ACTIVE" ]; do echo -n "."; sleep 3; done
+              - civo k8s config ${name}-${stage} --save --switch
+              - docker login -u $dockeruser -p $dockerpw 
+              - task build-package-push-deploy
+            services:
+              - docker
 
     main:
       - step:
           name: 'Deployment to prd'
           script:
             - echo "PROD"
+ 
