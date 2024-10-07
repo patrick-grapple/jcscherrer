@@ -52,9 +52,9 @@ pipelines:
     '**': #this runs as default for any branch not elsewhere defined
       - step: *cluster
       - step: *deploy
-        variables:
-        - name: "COMMAND"
-          value: "task build-package-push-deploy STAGE=pr"
+          variables:
+          - name: "COMMAND"
+            value: "task build-package-push-deploy STAGE=pr"
         
       # - step:
       #     name: 'Deployment of PR to nop'
