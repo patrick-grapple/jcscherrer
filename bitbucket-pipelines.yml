@@ -53,7 +53,7 @@ pipelines:
       - step: *cluster
       - step: *deploy
         variables:
-          COMMAND: "task build-package-push-deploy STAGE=pr"
+        - COMMAND: "task build-package-push-deploy STAGE=pr"
         
       # - step:
       #     name: 'Deployment of PR to nop'
