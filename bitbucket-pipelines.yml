@@ -90,4 +90,3 @@ pipelines:
           name: 'Deployment to prd'
           script:
             - echo "PROD"
- 
