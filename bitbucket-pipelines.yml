@@ -66,7 +66,7 @@ pipelines:
               - until [ $(civo k8s show -o custom -f Status ${name}-${stage}) = "ACTIVE" ]; do echo -n "."; sleep 3; done
               - civo k8s config ${name}-${stage} --save --switch
               - export re='^[0-9]+$'
-              - if [ -f "pr_id.txt" ] && [[ $(cat pr_id.txt) =~ $re ]] && [ "${PROJECT_NAME_SHORT}" != "" ]; then kubectl delete ns ${PROJECT_NAME_SHORT}-pr-$(cat pr_id.txt); fi
+              - if [ -f "pr_id.txt" ] && [[ $(cat pr_id.txt) =~ $re ]] && [ "${PROJECT_NAME_SHORT}" != "" ]; then kubectl delete ns ${PROJECT_NAME_SHORT}-pr-$(cat pr_id.txt) || true; fi
         - step:
             name: 'Deployment to UAT'
             caches:
