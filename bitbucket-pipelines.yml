@@ -17,6 +17,18 @@ definitions:
           - until [ $(civo k8s show -o custom -f Status ${name}-${stage}) = "ACTIVE" ]; do echo -n "."; sleep 3; done
           - civo k8s config ${name}-${stage} --save --switch
           - if [ "$(kubectl get configuration grpl | grep grpl | awk '{print $2}')" != "True" ] || [ "$(kubectl get configuration grpl | grep grpl | awk '{print $2}')" != "True" ]; then grpl cluster install --TARGET_PLATFORM=CIVO --CIVO_REGION=${civoregion} --CIVO_CLUSTER=${name}-${stage} --CIVO_EMAIL_ADDRESS=info@grapple-solutions.com --AUTO_CONFIRM=true; else echo "grpl is already running"; fi
+    - step: &deploy
+        name: "Deployment of PR to ${stage}"
+        caches:
+          - docker
+        script:
+          - civo apikey save cloud20x ${civokey} && civo region current ${civoregion} 
+          - until [ $(civo k8s show -o custom -f Status ${name}-${stage}) = "ACTIVE" ]; do echo -n "."; sleep 3; done
+          - civo k8s config ${name}-${stage} --save --switch
+          - docker login -u $dockeruser -p $dockerpw 
+          - ${COMMAND}
+        services:
+          - docker
 
 pipelines:
   
@@ -39,18 +51,22 @@ pipelines:
   pull-requests:
     '**': #this runs as default for any branch not elsewhere defined
       - step: *cluster
-      - step:
-          name: 'Deployment of PR to nop'
-          caches:
-            - docker
-          script:
-            - civo apikey save cloud20x ${civokey} && civo region current ${civoregion} 
-            - until [ $(civo k8s show -o custom -f Status ${name}-${stage}) = "ACTIVE" ]; do echo -n "."; sleep 3; done
-            - civo k8s config ${name}-${stage} --save --switch
-            - docker login -u $dockeruser -p $dockerpw 
-            - task build-package-push-deploy STAGE=pr
-          services:
-            - docker
+      - step: *deploy
+        variables:
+          COMMAND: "task build-package-push-deploy STAGE=pr"
+        
+      # - step:
+      #     name: 'Deployment of PR to nop'
+      #     caches:
+      #       - docker
+      #     script:
+      #       - civo apikey save cloud20x ${civokey} && civo region current ${civoregion} 
+      #       - until [ $(civo k8s show -o custom -f Status ${name}-${stage}) = "ACTIVE" ]; do echo -n "."; sleep 3; done
+      #       - civo k8s config ${name}-${stage} --save --switch
+      #       - docker login -u $dockeruser -p $dockerpw 
+      #       - task build-package-push-deploy STAGE=pr
+      #     services:
+      #       - docker
 
   branches:
     develop:
