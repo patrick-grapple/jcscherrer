@@ -61,8 +61,6 @@ pipelines:
         - step: *cluster
         - step:
             name: 'Cleanup PR deployments'
-            caches:
-              - docker
             script:
               - civo apikey save cloud20x ${civokey} && civo region current ${civoregion} 
               - until [ $(civo k8s show -o custom -f Status ${name}-${stage}) = "ACTIVE" ]; do echo -n "."; sleep 3; done
