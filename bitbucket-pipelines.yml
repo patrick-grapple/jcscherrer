@@ -38,9 +38,6 @@ pipelines:
 
   pull-requests:
     '**': #this runs as default for any branch not elsewhere defined
-      - variables:
-        - name: STAGE # stage=nop but STAGE=uat
-          default: uat
       - parallel:
         - step: *cluster
         - step:
