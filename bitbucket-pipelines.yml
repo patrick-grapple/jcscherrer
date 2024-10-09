@@ -13,6 +13,7 @@ definitions:
           - pipe: atlassian/trigger-pipeline:5.8.1
             variables:
               REPOSITORY: grapple-cluster-deploy
+              BITBUCKET_ACCESS_TOKEN: ${grapple_clusters_accesss_token}
               CUSTOM_PIPELINE_NAME: nop
         #   - kubectl version --client=true && helm version && civo version || true
         #   - civo apikey save grapple ${civokey} && civo region current ${civoregion} 
