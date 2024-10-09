@@ -17,6 +17,7 @@ definitions:
               CUSTOM_PIPELINE_NAME: nop
               REF_TYPE: branch
               REF_NAME: main
+              WAIT: true
         #   - kubectl version --client=true && helm version && civo version || true
         #   - civo apikey save grapple ${civokey} && civo region current ${civoregion} 
         #   - civo apikey ls
