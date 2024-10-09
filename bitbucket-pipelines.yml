@@ -11,8 +11,9 @@ definitions:
         name: 'Prep Cluster'
         script:
           - pipe: atlassian/trigger-pipeline:5.8.1
-            REPOSITORY: grapple-cluster-deploy
-            CUSTOM_PIPELINE_NAME: nop
+            variables:
+              REPOSITORY: grapple-cluster-deploy
+              CUSTOM_PIPELINE_NAME: nop
         #   - kubectl version --client=true && helm version && civo version || true
         #   - civo apikey save grapple ${civokey} && civo region current ${civoregion} 
         #   - civo apikey ls
