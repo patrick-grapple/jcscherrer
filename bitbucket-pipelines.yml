@@ -14,7 +14,7 @@ definitions:
             variables:
               REPOSITORY: grapple-cluster-deploy
               BITBUCKET_ACCESS_TOKEN: ${grapple_clusters_accesss_token}
-              CUSTOM_PIPELINE_NAME: nop
+              CUSTOM_PIPELINE_NAME: ${stage}
               REF_TYPE: branch
               REF_NAME: main
               WAIT: "true"
