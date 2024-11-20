@@ -35,10 +35,14 @@ definitions:
           - civo apikey save cloud20x ${civokey} && civo region current ${civoregion} 
           - until [ $(civo k8s show -o custom -f Status ${name}-${stage}) = "ACTIVE" ]; do echo -n "."; sleep 3; done
           - civo k8s config ${name}-${stage} --save --switch
+          - echo "wait for grapple installation"
+          - while ! kubectl get -n grpl-system configuration.pkg.crossplane.io grpl 2>/dev/null; do echo -n "."; sleep 2; done
+          - sleep 5
+          - kubectl wait -n grpl-system configuration.pkg.crossplane.io grpl --for condition=Healthy=True --timeout=300s
           - # prepare external secrets
           - echo -n "${AWS_ACCESS_KEY_ID}" > ./access-key
           - echo -n "${AWS_SECRET_ACCESS_KEY}" > ./secret-access-key
-          - kubectl -n orm-system create secret generic awssm-secret-jcs --from-file=./access-key  --from-file=./secret-access-key 2>/dev/null || true
+          - kubectl -n grpl-system create secret generic awssm-secret-jcs --from-file=./access-key  --from-file=./secret-access-key 2>/dev/null || true
 
 pipelines:
   
@@ -72,6 +76,10 @@ pipelines:
               - until [ $(civo k8s show -o custom -f Status ${name}-${stage}) = "ACTIVE" ]; do echo -n "."; sleep 3; done
               - civo k8s config ${name}-${stage} --save --switch
               - docker login -u $dockeruser -p $dockerpw 
+              - echo "wait for grapple installation"
+              - while ! kubectl get -n grpl-system configuration.pkg.crossplane.io grpl 2>/dev/null; do echo -n "."; sleep 2; done
+              - sleep 5
+              - kubectl wait -n grpl-system configuration.pkg.crossplane.io grpl --for condition=Healthy=True --timeout=300s
               - task build-package-push-deploy STAGE=pr
               - echo $BITBUCKET_PR_ID > pr_id.txt
               - git add --force pr_id.txt && git commit -m "[skip ci] updated PR ID" && git push
@@ -100,6 +108,10 @@ pipelines:
               - until [ $(civo k8s show -o custom -f Status ${name}-${stage}) = "ACTIVE" ]; do echo -n "."; sleep 3; done
               - civo k8s config ${name}-${stage} --save --switch
               - docker login -u $dockeruser -p $dockerpw 
+              - echo "wait for grapple installation"
+              - while ! kubectl get -n grpl-system configuration.pkg.crossplane.io grpl 2>/dev/null; do echo -n "."; sleep 2; done
+              - sleep 5
+              - kubectl wait -n grpl-system configuration.pkg.crossplane.io grpl --for condition=Healthy=True --timeout=300s
               - task build-package-push-deploy STAGE=uat
             services:
               - docker
