@@ -14,125 +14,131 @@ gras-deploy:
     ingress: true
     ssl: true
     sslissuer: letsencrypt-grapple-demo
-    initContainers:
-      - name: test
+    # initContainers:
+    #   - name: test
+    #     spec:
+    #       name: init-db
+    #       image: busybox:1.28
+    #       command: ['sh', '-c', "if ! test -f /data/db.json; then wget -O /data/db.json https://raw.githubusercontent.com/grapple-solutions/grapple-test-data/main/classicmodelsid/db.json; chmod 777 /data/db.json; fi"]
+    # volumes:
+    #   - name: data
+    #     emptyDir: {}
+    #     # persistentVolumeClaim: 
+    #     #   claimName: grapi-dbfile
+    # volumeMounts:
+    #   - name: data
+    #     mountPath: /data
+    externalsecrets:
+      - name: "classicmodelsas-auroramysql"
         spec:
-          name: init-db
-          image: busybox:1.28
-          command: ['sh', '-c', "if ! test -f /data/db.json; then wget -O /data/db.json https://raw.githubusercontent.com/grapple-solutions/grapple-test-data/main/classicmodelsid/db.json; chmod 777 /data/db.json; fi"]
-    volumes:
-      - name: data
-        emptyDir: {}
-        # persistentVolumeClaim: 
-        #   claimName: grapi-dbfile
-    volumeMounts:
-      - name: data
-        mountPath: /data
+          refreshInterval: 1h
+          secretStoreRef:
+            name: aws-secretstore
+            kind: ClusterSecretStore
+          target:
+            name: auroramysql
+            creationPolicy: Owner
+          dataFrom:
+            - extract:
+                key: cloud20x/rds/auroramysql
+      - name: "jcscherrer-bexio"
+        spec:
+          refreshInterval: 1h
+          secretStoreRef:
+            name: aws-secretstore
+            kind: ClusterSecretStore
+          target:
+            name: jcscherrer-bexio
+            creationPolicy: Owner
+          dataFrom:
+            - extract:
+                key: cloud20x/jcscherrer/bexionop
+    # datasources:
+    #   - name: "db"
+    #     spec:
+    #       memory:
+    #         connector: "memory"
+    #         name: "db"
+    #         file: "/data/db.json"
+    #         localStorage: "db"
+    # models:
+    #   - name: "customers"
+    #     spec:
+    #       name: customers
+    #       base: Entity
+    #       properties:
+    #         id:
+    #           type: number
+    #           id: true
+    #           required: true
+    #           generated: true
     datasources:
-      - name: "db"
-        spec:
-          memory:
-            connector: "memory"
-            name: "db"
-            file: "/data/db.json"
-            localStorage: "db"
-    models:
-      - name: "customers"
-        spec:
-          name: customers
-          base: Entity
-          properties:
-            id:
-              type: number
-              id: true
-              required: true
-              generated: true
-            customerName:
-              type: string
-            customerLastname:
-              type: string
-            contactFirstName:
-              type: string
-            phone:
-              type: string
-            addressLine1:
-              type: string
-            addressLine2:
-              type: string
-            city:
-              type: string
-            state:
-              type: string
-            postalCode:
-              type: string
-            country:
-              type: string
-            creditLimit:
-              type: number
-      - name: "employees"
-        spec:
-          name: employees
-          base: Entity
-          properties:
-            id:
-              type: number
-              id: true
-              required: true
-              generated: true
-            lastName:
-              type: string
-            firstName:
-              type: string
-            extension:
-              type: string
-            email:
-              type: string
-            officesId:
-              type: string
-            reportsTo:
-              type: number
-            jobTitle:
-              type: string
-            state:
-              type: string
-            postalCode:
-              type: string
-            country:
-              type: string
-            creditLimit:
-              type: number
-    relations:
-      - name: "employees"
-        spec:
-          relationName: "employees"
-          sourceModel: "Customers"
-          destinationModel: "Employees"
-          foreignKeyName: "employeesId"
-          relationType: "belongsTo"
-          registerInclusionResolver: true
+      - content: '{ "name": "jcscherrer", "connector": "mysql", "url": "", "host": "${host}", "port": "${port}", "user": "${username}", "password": "${password}", "database": "jcscherrer"}'
+        name: jcscherrer
+    discoveries:
+      - content: '{"dataSource":"jcscherrer","schema":"jcscherrer","all":"true","disableCamelCase":false}'
+        name: jcscherrer
+      - content: '{"sourceModel": "Rapport", "destinationModel": "Trainer", "foreignKeyName": "trainerId", "relationType": "belongsTo", "registerInclusionResolver": true}'
+        name: trainer
+      - content: '{"sourceModel": "Rapport", "destinationModel": "Platz", "foreignKeyName": "platzId", "relationType": "belongsTo", "registerInclusionResolver": true}'
+        name: platz
+      - content: '{"sourceModel": "Rapport", "destinationModel": "Kunde", "foreignKeyName": "kundeId", "relationType": "belongsTo", "registerInclusionResolver": true}'
+        name: kunde
+      - content: '{"sourceModel": "Rapport", "destinationModel": "Gruppe", "foreignKeyName": "gruppeId", "relationType": "belongsTo", "registerInclusionResolver": true}'
+        name: gruppe
+      - content: '{"sourceModel": "Rapport", "destinationModel": "Invoices", "foreignKeyName": "rapportId", "relationType": "hasMany", "registerInclusionResolver": true}'
+        name: invoice
+      - content: '{"sourceModel": "ArchivedRapport", "destinationModel": "Trainer", "foreignKeyName": "trainerId", "relationType": "belongsTo", "registerInclusionResolver": true}'
+        name: trainerarchived
+      - content: '{"sourceModel": "ArchivedRapport", "destinationModel": "Platz", "foreignKeyName": "platzId", "relationType": "belongsTo", "registerInclusionResolver": true}'
+        name: platzarchived
+      - content: '{"sourceModel": "ArchivedRapport", "destinationModel": "Kunde", "foreignKeyName": "kundeId", "relationType": "belongsTo", "registerInclusionResolver": true}'
+        name: kundearchived
+      - content: '{"sourceModel": "ArchivedRapport", "destinationModel": "Gruppe", "foreignKeyName": "gruppeId", "relationType": "belongsTo", "registerInclusionResolver": true}'
+        name: gruppearchived
+      - content: '{"sourceModel": "ArchivedRapport", "destinationModel": "Invoices", "foreignKeyName": "rapportId", "relationType": "hasMany", "registerInclusionResolver": true}'
+        name: invoicearchived
+      - content: '{"relationName": "SummerRateBefore", "sourceModel": "Trainer","destinationModel": "Product","foreignKeyName":"SummerRateBeforeId","relationType":"belongsTo","registerInclusionResolver":true}'
+        name: SummerRateBefore
+      - content: '{"relationName": "KUNDE", "customReferenceKeys":true, "sourceModel": "Kunde","customSourceModelKey":"bexioId","destinationModel":"Kunde","customTargetModelKey":"bexioId","throughModel":"KundeThrough","relationType":"hasManyThrough","sourceKeyOnThrough":"contactId","targetKeyOnThrough":"contactSubId","registerInclusionResolver":true}'
+        name: KUNDE
+      - content: '{"sourceModel": "Invoices", "destinationModel": "Rapport", "foreignKeyName": "relatedRapportId", "relationType": "belongsTo", "registerInclusionResolver": true}'
+        name: rapport
     restcruds:
-      - name: "restcrud"
-        spec:
-          datasource: "db"
-    controllers:
-      - name: ping2
-        content: aW1wb3J0IHtpbmplY3R9IGZyb20gJ0Bsb29wYmFjay9jb3JlJzsKaW1wb3J0IHsKICBSZXF1ZXN0LAogIFJlc3RCaW5kaW5ncywKICBnZXQsCiAgcmVzcG9uc2UsCiAgUmVzcG9uc2VPYmplY3QsCn0gZnJvbSAnQGxvb3BiYWNrL3Jlc3QnOwoKLyoqCiAqIE9wZW5BUEkgcmVzcG9uc2UgZm9yIHBpbmcyKCkKICovCmNvbnN0IFBJTkcyX1JFU1BPTlNFOiBSZXNwb25zZU9iamVjdCA9IHsKICBkZXNjcmlwdGlvbjogJ1BpbmcyIFJlc3BvbnNlJywKICBjb250ZW50OiB7CiAgICAnYXBwbGljYXRpb24vanNvbic6IHsKICAgICAgc2NoZW1hOiB7CiAgICAgICAgdHlwZTogJ29iamVjdCcsCiAgICAgICAgdGl0bGU6ICdQaW5nMlJlc3BvbnNlJywKICAgICAgICBwcm9wZXJ0aWVzOiB7CiAgICAgICAgICBncmVldGluZzoge3R5cGU6ICdzdHJpbmcnfSwKICAgICAgICAgIGRhdGU6IHt0eXBlOiAnc3RyaW5nJ30sCiAgICAgICAgICB1cmw6IHt0eXBlOiAnc3RyaW5nJ30sCiAgICAgICAgICBoZWFkZXJzOiB7CiAgICAgICAgICAgIHR5cGU6ICdvYmplY3QnLAogICAgICAgICAgICBwcm9wZXJ0aWVzOiB7CiAgICAgICAgICAgICAgJ0NvbnRlbnQtVHlwZSc6IHt0eXBlOiAnc3RyaW5nJ30sCiAgICAgICAgICAgIH0sCiAgICAgICAgICAgIGFkZGl0aW9uYWxQcm9wZXJ0aWVzOiB0cnVlLAogICAgICAgICAgfSwKICAgICAgICB9LAogICAgICB9LAogICAgfSwKICB9LAp9OwoKLyoqCiAqIEEgc2ltcGxlIGNvbnRyb2xsZXIgdG8gYm91bmNlIGJhY2sgaHR0cCByZXF1ZXN0cwogKi8KZXhwb3J0IGNsYXNzIFBpbmcyQ29udHJvbGxlciB7CiAgY29uc3RydWN0b3IoQGluamVjdChSZXN0QmluZGluZ3MuSHR0cC5SRVFVRVNUKSBwcml2YXRlIHJlcTogUmVxdWVzdCkge30KCiAgLy8gTWFwIHRvIGBHRVQgL3BpbmcyYAogIEBnZXQoJy9waW5nMicpCiAgQHJlc3BvbnNlKDIwMCwgUElORzJfUkVTUE9OU0UpCiAgcGluZzIoKTogb2JqZWN0IHsKICAgIC8vIFJlcGx5IHdpdGggYSBncmVldGluZywgdGhlIGN1cnJlbnQgdGltZSwgdGhlIHVybCwgYW5kIHJlcXVlc3QgaGVhZGVycwogICAgcmV0dXJuIHsKICAgICAgZ3JlZXRpbmc6ICdIZWxsbyBmcm9tIGdyYXBwbGUnLAogICAgICBkYXRlOiBuZXcgRGF0ZSgpLAogICAgICB1cmw6IHRoaXMucmVxLnVybCwKICAgICAgaGVhZGVyczogT2JqZWN0LmFzc2lnbih7fSwgdGhpcy5yZXEuaGVhZGVycyksCiAgICB9OwogIH0KfQo=
+      - content: '{"datasource":"jcscherrer"}'
+        name: jcscherrer
+        # relations:
+        #   - name: "employees"
+        #     spec:
+        #       relationName: "employees"
+        #       sourceModel: "Customers"
+        #       destinationModel: "Employees"
+        #       foreignKeyName: "employeesId"
+        #       relationType: "belongsTo"
+        #       registerInclusionResolver: true
+        # restcruds:
+        #   - name: "restcrud"
+        #     spec:
+        #       datasource: "db"
+        # controllers:
+        #   - name: ping2
+        #     content: aW1wb3J0IHtpbmplY3R9IGZyb20gJ0Bsb29wYmFjay9jb3JlJzsKaW1wb3J0IHsKICBSZXF1ZXN0LAogIFJlc3RCaW5kaW5ncywKICBnZXQsCiAgcmVzcG9uc2UsCiAgUmVzcG9uc2VPYmplY3QsCn0gZnJvbSAnQGxvb3BiYWNrL3Jlc3QnOwoKLyoqCiAqIE9wZW5BUEkgcmVzcG9uc2UgZm9yIHBpbmcyKCkKICovCmNvbnN0IFBJTkcyX1JFU1BPTlNFOiBSZXNwb25zZU9iamVjdCA9IHsKICBkZXNjcmlwdGlvbjogJ1BpbmcyIFJlc3BvbnNlJywKICBjb250ZW50OiB7CiAgICAnYXBwbGljYXRpb24vanNvbic6IHsKICAgICAgc2NoZW1hOiB7CiAgICAgICAgdHlwZTogJ29iamVjdCcsCiAgICAgICAgdGl0bGU6ICdQaW5nMlJlc3BvbnNlJywKICAgICAgICBwcm9wZXJ0aWVzOiB7CiAgICAgICAgICBncmVldGluZzoge3R5cGU6ICdzdHJpbmcnfSwKICAgICAgICAgIGRhdGU6IHt0eXBlOiAnc3RyaW5nJ30sCiAgICAgICAgICB1cmw6IHt0eXBlOiAnc3RyaW5nJ30sCiAgICAgICAgICBoZWFkZXJzOiB7CiAgICAgICAgICAgIHR5cGU6ICdvYmplY3QnLAogICAgICAgICAgICBwcm9wZXJ0aWVzOiB7CiAgICAgICAgICAgICAgJ0NvbnRlbnQtVHlwZSc6IHt0eXBlOiAnc3RyaW5nJ30sCiAgICAgICAgICAgIH0sCiAgICAgICAgICAgIGFkZGl0aW9uYWxQcm9wZXJ0aWVzOiB0cnVlLAogICAgICAgICAgfSwKICAgICAgICB9LAogICAgICB9LAogICAgfSwKICB9LAp9OwoKLyoqCiAqIEEgc2ltcGxlIGNvbnRyb2xsZXIgdG8gYm91bmNlIGJhY2sgaHR0cCByZXF1ZXN0cwogKi8KZXhwb3J0IGNsYXNzIFBpbmcyQ29udHJvbGxlciB7CiAgY29uc3RydWN0b3IoQGluamVjdChSZXN0QmluZGluZ3MuSHR0cC5SRVFVRVNUKSBwcml2YXRlIHJlcTogUmVxdWVzdCkge30KCiAgLy8gTWFwIHRvIGBHRVQgL3BpbmcyYAogIEBnZXQoJy9waW5nMicpCiAgQHJlc3BvbnNlKDIwMCwgUElORzJfUkVTUE9OU0UpCiAgcGluZzIoKTogb2JqZWN0IHsKICAgIC8vIFJlcGx5IHdpdGggYSBncmVldGluZywgdGhlIGN1cnJlbnQgdGltZSwgdGhlIHVybCwgYW5kIHJlcXVlc3QgaGVhZGVycwogICAgcmV0dXJuIHsKICAgICAgZ3JlZXRpbmc6ICdIZWxsbyBmcm9tIGdyYXBwbGUnLAogICAgICBkYXRlOiBuZXcgRGF0ZSgpLAogICAgICB1cmw6IHRoaXMucmVxLnVybCwKICAgICAgaGVhZGVyczogT2JqZWN0LmFzc2lnbih7fSwgdGhpcy5yZXEuaGVhZGVycyksCiAgICB9OwogIH0KfQo=
   gruim:
     # uiimagetag: "0.1.38"
     ssl: true
     sslissuer: letsencrypt-grapple-demo
-    style: '{"colors":{"primary":{"DEFAULT":"#34344A","fg":"#fff"},"accent":{"DEFAULT":"#CC5A71","fg":"#fff"}}}'
-    config: ""
-    additionalpackages: ""
+    style: '{"colors":{"primary":{"DEFAULT":"#004a99","fg":"#ffffff"},"accent":{"DEFAULT":"#fa7252","fg":"#ffffff"}}}'
+    config: '{"global":{"list-size":10,"field-properties":{"id":{"readonly":false}}, "weekStart": 1},"schema":{"Trainer":{"field-order":["id","vorname","name","email","aktiv","SummerRateBefore","SummerRateAfter","WinterRateBefore","WinterRateAfter","ClubRate","notizen","token"]},"Kunde":{"field-order":["id","bexioId","name","vorname","mail","ort","plz","strasse","land"]},"Gruppe":{"field-order":["id","gruppenname","beschreibung","gruppentyp","notizen"]},"Product":{"field-order":["id","bexioId","interncode","internname","interndescription","saleprice","taxid","articlegroupid"]},"Rapport":{"field-order":["id","datum","invoicedIn","trainer","kunde","gruppe","platz","startzeit","trainingsdauer","trainingType","nachholtermin","probetraining","archived","notizen"]}}}'
+    additionalpackages: "svelte-fullcalendar@2.0.0-beta.0 @fullcalendar/common@5.10.1 @fullcalendar/core@5.10.1 @fullcalendar/daygrid@5.10.1 @fullcalendar/interaction@5.10.1 @fullcalendar/timegrid@5.10.1 dayjs@1.11.2"
     custommodules:
       - name: trainerDropDown
         content: PHNjcmlwdCBsYW5nPSJ0cyI+CiAgaW1wb3J0IHsgb25Nb3VudCB9IGZyb20gInN2ZWx0ZSI7CgogIGltcG9ydCBTZWxlY3QgZnJvbSAic3ZlbHRlLXNlbGVjdC9TZWxlY3Quc3ZlbHRlIjsKICBpbXBvcnQgeyBjcmVhdGVFdmVudERpc3BhdGNoZXIgfSBmcm9tICJzdmVsdGUiOwogIGNvbnN0IGRpc3BhdGNoID0gY3JlYXRlRXZlbnREaXNwYXRjaGVyKCk7CgogIGV4cG9ydCBsZXQgc2VsZWN0ZWRWYWx1ZToKICAgIHwgewogICAgICAgIHZhbHVlOiBudW1iZXI7CiAgICAgICAgbGFiZWw6IHN0cmluZzsKICAgICAgfQogICAgfCB7fSA9IHt9OwoKICBleHBvcnQgbGV0IHBsYWNlaG9sZGVyID0gIlRyYWluZXIiOwoKICBsZXQgaGFuZGxlQ2hhbmdlID0gKCkgPT4gewogICAgZGlzcGF0Y2goInVwZGF0ZVRyYWluZXIiLCB7CiAgICAgIHNlbGVjdGVkVmFsdWUsCiAgICB9KTsKICB9OwoKICBsZXQgbGlzdDogYW55ID0gW107CgogIG9uTW91bnQoYXN5bmMgZnVuY3Rpb24gKCkgewogICAgbGV0IHNhdmVkVHJhaW5lciA9IGxvY2FsU3RvcmFnZS5nZXRJdGVtKCJ0cmFpbmVyIik7CgogICAgaWYgKHNhdmVkVHJhaW5lcikgewogICAgICBzZWxlY3RlZFZhbHVlID0gSlNPTi5wYXJzZShzYXZlZFRyYWluZXIpOwogICAgfQoKICAgIC8vIGdldCB0aGUgbGlzdCBvZiB0cmFpbmVycwogICAgLy8gc2V0IHRoZSBsaXN0IG9mIHRyYWluZXJzIHRvIHRoZSBzZWxlY3QgY29tcG9uZW50CiAgICBsZXQgcmFwcG9ydHMgPSBhd2FpdCBmZXRjaCgKICAgICAgYCR7cHJvY2Vzcy5lbnYuU1ZFTFRFX0FQUF9SRU1PVEVfVVJMfS9hcGkvdHJhaW5lcnNgCiAgICApOwogICAgY29uc3QgZGF0YSA9IGF3YWl0IHJhcHBvcnRzLmpzb24oKTsKCiAgICBsaXN0ID0gWwogICAgICB7CiAgICAgICAgdmxhdWU6IDAsCiAgICAgICAgbGFiZWw6ICJBbGwgVHJhaW5lcnMiLAogICAgICB9LAogICAgICAuLi5kYXRhLm1hcCgocjogYW55KSA9PiAoewogICAgICAgIHZhbHVlOiByLmlkLAogICAgICAgIGxhYmVsOiByLm5hbWUsCiAgICAgIH0pKSwKICAgIF07CiAgfSk7Cjwvc2NyaXB0PgoKPGRpdiBjbGFzcz0ibWF4LXctc20gdGhlbWVkIj4KICA8U2VsZWN0CiAgICBpdGVtcz17bGlzdH0KICAgIGJpbmQ6dmFsdWU9e3NlbGVjdGVkVmFsdWV9CiAgICBiaW5kOnBsYWNlaG9sZGVyCiAgICBvbjpzZWxlY3Q9e2hhbmRsZUNoYW5nZX0KICAvPgo8L2Rpdj4KCjxzdHlsZSBsYW5nPSJwb3N0Y3NzIj4KICAudGhlbWVkIHsKICAgIC0tYm9yZGVySG92ZXJDb2xvcjogIzFhNWNhMzsKICAgIC0tYm9yZGVyUmFkaXVzOiA0cHg7CiAgICAtLWl0ZW1Ib3ZlckJHOiAjZmZmMWVlOwogICAgLS1pdGVtSXNBY3RpdmVCRzogI2ZhNzI1MjsKICB9Cjwvc3R5bGU+Cg==
 replicaCount: 1
 image:
-  repository: grpl/grapple-template-pr
+  repository: grpl/jcscherrer
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "0.1.45.pr-33"
+  tag: "0.1.0.dev-46a8afe"
 imagetest:
   repository: apptest
   pullPolicy: IfNotPresent
