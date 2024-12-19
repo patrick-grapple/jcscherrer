@@ -1,0 +1,6 @@
+# Stage 1: Build Stage
+FROM mysql:latest
+
+# Copy package.json and package-lock.json
+COPY data/db.sql ./
+

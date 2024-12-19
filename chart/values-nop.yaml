@@ -1,0 +1,34 @@
+# Default values for myapp for nop stage.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+gras-deploy:
+  grapi:
+    externalsecrets:
+      - name: "classicmodelsas-auroramysql"
+        spec:
+          refreshInterval: 1h
+          secretStoreRef:
+            name: aws-secretstore
+            kind: ClusterSecretStore
+          target:
+            name: auroramysql
+            creationPolicy: Owner
+          dataFrom:
+            - extract:
+                key: cloud20x/rds/auroramysql
+      - name: "jcscherrer-bexio"
+        spec:
+          refreshInterval: 1h
+          secretStoreRef:
+            name: aws-secretstore
+            kind: ClusterSecretStore
+          target:
+            name: jcscherrer-bexio
+            creationPolicy: Owner
+          dataFrom:
+            - extract:
+                key: cloud20x/jcscherrer/bexionop
+    datasources:
+      - content: '{ "name": "jcscherrer", "connector": "mysql", "url": "", "host": "${host}", "port": "${port}", "user": "${username}", "password": "${password}", "database": "jcscherrer"}'
+        name: jcscherrer

@@ -2,7 +2,7 @@ version: v2beta1
 name: grapple-template
 vars:
   IMAGE_REGISTRY: "grpl"
-  IMAGE_REPO: "grapple-template"
+  IMAGE_REPO: "jcscherrer"
 # This is a list of `pipelines` that DevSpace can execute (you can define your own)
 pipelines:
   # This is the pipeline for the main command: `devspace dev` (or `devspace run-pipeline dev`)
@@ -21,6 +21,11 @@ images:
   app:
     image: "${IMAGE_REGISTRY}/${IMAGE_REPO}:devspace"
     dockerfile: ./Dockerfile
+    buildKit: # {}
+      args: [--platform, 'linux/amd64,linux/arm64']
+  data:
+    image: "${IMAGE_REGISTRY}/${IMAGE_REPO}-data:devspace"
+    dockerfile: ./Dockerfile.data
     buildKit: # {}
       args: [--platform, 'linux/amd64,linux/arm64']
 # This is a list of `deployments` that DevSpace can create for this project
@@ -80,7 +85,7 @@ dev:
     # Search for the container that runs this image
     labelSelector:
       app.kubernetes.io/name: gruim
-    devImage: docker.io/grpl/gruim:0.2.4
+    devImage: docker.io/grpl/gruim:0.2.9
     env:
       - name: DEV
         value: "true"
@@ -99,7 +104,7 @@ dev:
     # Search for the container that runs this image
     labelSelector:
       app.kubernetes.io/name: grapi
-    devImage: docker.io/grpl/grapi:0.2.4
+    devImage: docker.io/grpl/grapi:0.2.9
     env:
       - name: DEV
         value: "true"
@@ -137,10 +142,10 @@ commands:
 # localRegistry:
 #   localbuild: truede
 profiles:
-- name: bitbucket
-  activation:
-  - vars:
-      CI: true
-  patches:
-  - op: remove
-    path: images.app.buildKit
+  - name: bitbucket
+    activation:
+      - vars:
+          CI: true
+    patches:
+      - op: remove
+        path: images.app.buildKit
