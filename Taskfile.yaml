@@ -8,28 +8,19 @@ vars:
   GRUIM_INJECTION_FOLDER: "gruim"
   BASE: "gras-deploy"
   CHART_FOLDER: "./chart"
-  PROJECT_NAME: # use the current folder as the chart name
+  CHART_NAME: # use the current folder as the chart name
+    sh: echo ${PWD##*/}
+  CHART_NAME_SHORT: # use the current folder as the chart name
     sh: |
-        if [ "{{.PROJECT_NAME}}" = "" ]; then
-          echo ${PWD##*/}
-        else
-          echo "{{.PROJECT_NAME}}"
-        fi
-  PROJECT_NAME_SHORT: # use the current folder as the chart name
-    sh: |
-        if [ "{{.PROJECT_NAME_SHORT}}" = "" ]; then
-          string="${PWD##*/}"
-          string="${string//[.\']/}"
-          string="${string//[!a-zA-Z ]/ }"
-          acronym=''
-          for word in ${string}
-          do
-            acronym+="${word:0:4}"
-          done
-          echo "$acronym"
-        else
-          echo "{{.PROJECT_NAME_SHORT}}"
-        fi
+        string="${PWD##*/}"
+        string="${string//[.\']/}"
+        string="${string//[!a-zA-Z ]/ }"
+        acronym=''
+        for word in ${string}
+        do
+          acronym+="${word:0:4}"
+        done
+        echo "$acronym"
   VERSION_FILE: "version.txt" 
   CURRENT_VERSION:
     sh: |
@@ -59,7 +50,7 @@ vars:
           IMAGE_REPO_EXT="-{{.STAGE}}"
         fi
         if [ "{{.IMAGE_REPO}}" = "" ]; then
-          echo "{{.PROJECT_NAME}}${IMAGE_REPO_EXT}"
+          echo "{{.CHART_NAME}}${IMAGE_REPO_EXT}"
         else
           echo "{{.IMAGE_REPO}}${IMAGE_REPO_EXT}"
         fi
@@ -77,9 +68,9 @@ vars:
   NS:
     sh: |
         if [ "{{.STAGE}}" = "prd" ]; then
-          echo "{{.PROJECT_NAME}}" | head -c 10
+          echo "{{.CHART_NAME}}" | head -c 10
         else
-          echo -n "{{.PROJECT_NAME_SHORT}}" | head -c 10 | cat - <(echo "{{.NS_EXT}}")
+          echo -n "{{.CHART_NAME_SHORT}}" | head -c 10 | cat - <(echo "{{.NS_EXT}}")
         fi
   TAG_EXT:
     sh: |
@@ -169,6 +160,96 @@ tasks:
         yq e -i '.vars.IMAGE_REGISTRY = "{{.IMAGE_REGISTRY}}"' devspace.yaml
         yq e -i '.vars.IMAGE_REPO = "{{.IMAGE_REPO}}"' devspace.yaml
         devspace build --tag "{{.TAG}}-{{.GIT_HASH}}" -n default --no-warn
+
+  patch-values-file-patches-only:
+    desc: Gather and encode backend (grapi) injections (patches only)
+          and update values.yaml
+    cmds:
+      - echo "1) Checking if values.yaml exists..."
+      - |
+        if [ -f "{{.VALUES_YAML_PATH}}" ]; then
+          echo "values.yaml found at {{.VALUES_YAML_PATH}}"
+        else
+          echo "ERROR: values.yaml not found at {{.VALUES_YAML_PATH}}"
+          exit 1
+        fi
+      - echo "2) Processing grapi injections..."
+      - |
+        FOLDER={{.GRAPI_INJECTION_FOLDER}}
+        BASE64=$(if [[ "$OSTYPE" == "darwin"* ]]; then echo "base64"; else echo "base64 -w 0"; fi)
+        BASE="{{.BASE}}"  # Ensuring BASE is enclosed in quotes for full path reference
+        if yq -e ".${BASE}.${FOLDER}" {{.VALUES_YAML_PATH}} >/dev/null; then
+          for file_path in $(find ${FOLDER} -name "*.sh" -or -name "*.bash"); do  
+            group_name=$(echo ${file_path} | sed "s,${FOLDER}/,,g" | \
+              cut -d/ -f1)
+            file_name=$(echo ${file_path} | sed "s,${FOLDER}/,,g" | \
+              cut -d/ -f2)
+            file_extension=$(echo ${file_name##*.})
+            injection_name=$(echo ${file_name} | sed \
+              "s,.${group_name}.${file_extension},,g" | sed \
+              "s,.${group_name::${#group_name}-1}.${file_extension},,g" | \
+              sed "s,.${file_extension},,g")
+            base64_content=$(cat ${file_path} | ${BASE64})  # Base64 on single line
+            if [ "${file_name}" = "index.ts" ]; then continue; fi
+            echo "patching: ${FOLDER} - ${group_name} - ${injection_name} - \
+              ${file_name}"
+            yq -i "del(.${BASE}.${FOLDER}.${group_name}[] | \
+              select(.name == \"${injection_name}\"))" {{.VALUES_YAML_PATH}}
+            yq -i ".${BASE}.${FOLDER}.${group_name} += [{\"name\": \
+              \"${injection_name}\", \"content\": \"${base64_content}\"}]" \
+              {{.VALUES_YAML_PATH}}
+          done
+        else
+          echo "failed to add ${FOLDER} values..."
+          exit 99
+        fi
+
+  reset-values-file:
+    desc: Gather and encode backend (grapi) and frontend (gruim) injections 
+          and update values.yaml
+    cmds:
+      - echo "1) Checking if values.yaml exists..."
+      - |
+        if [ -f "{{.VALUES_YAML_PATH}}" ]; then
+          echo "values.yaml found at {{.VALUES_YAML_PATH}}"
+        else
+          echo "ERROR: values.yaml not found at {{.VALUES_YAML_PATH}}"
+          exit 1
+        fi
+      - echo "2) Resetting grapi injections..."
+      - |
+        FOLDER={{.GRAPI_INJECTION_FOLDER}}
+        BASE64=$(if [[ "$OSTYPE" == "darwin"* ]]; then echo "base64"; else echo "base64 -w 0"; fi)
+        BASE="{{.BASE}}"  # Ensuring BASE is enclosed in quotes for full path reference
+        GROUPS="controllers prerelationpatches postpatches"
+        if yq -e ".${BASE}.${FOLDER}" {{.VALUES_YAML_PATH}} >/dev/null; then
+          for group_name in $(echo ${GROUPS}); do
+            echo "reset ${group_name}"
+            yq -i ".${BASE}.${FOLDER}.${group_name} = []" \
+                {{.VALUES_YAML_PATH}}
+          done
+        else
+          echo "failed to reset ${FOLDER} values..."
+          exit 99
+        fi
+ 
+      - echo "3) Resetting gruim injections..."
+      - |
+        FOLDER={{.GRUIM_INJECTION_FOLDER}}
+        BASE64=$(if [[ "$OSTYPE" == "darwin"* ]]; then echo "base64"; else echo "base64 -w 0"; fi)
+        BASE="{{.BASE}}"  # Ensuring BASE is enclosed in quotes for full path reference
+        GROUPS="custommodules"
+        if yq -e ".${BASE}.${FOLDER}" {{.VALUES_YAML_PATH}} >/dev/null; then
+          for group_name in $(echo ${GROUPS}); do
+            echo "reset ${group_name}"
+            yq -i ".${BASE}.${FOLDER}.${group_name} = []" \
+                {{.VALUES_YAML_PATH}}
+          done
+        else
+          echo "failed to reset ${FOLDER} values..."
+          exit 99
+        fi
+      
 
   patch-values-file:
     desc: Gather and encode backend (grapi) and frontend (gruim) injections 
@@ -277,7 +358,7 @@ tasks:
     cmds:
       - |
         # rename the chart properly
-        yq e -i '.name = "{{.PROJECT_NAME}}"' {{.CHART_FOLDER}}/Chart.yaml
+        yq e -i '.name = "{{.CHART_NAME}}"' {{.CHART_FOLDER}}/Chart.yaml
 
         # patch the image:
         yq e -i '.image.repository = "{{.IMAGE_REGISTRY}}/{{.IMAGE_REPO}}"' {{.VALUES_YAML_PATH}}
@@ -290,7 +371,7 @@ tasks:
         echo {{.SEMVER}}
         helm package chart --version {{.SEMVER}}
 
-        echo "helm package created in: ./{{.PROJECT_NAME}}-{{.SEMVER}}.tgz"
+        echo "helm package created in: ./{{.CHART_NAME}}-{{.SEMVER}}.tgz"
 
   push-chart-aws:
     desc: Push the packaged Helm chart to the repository
@@ -316,11 +397,11 @@ tasks:
           --region {{.AWS_REGION}} | helm registry login \
           --username {{.AWS_USERNAME}} \
           --password-stdin {{.REGISTRY}}
-        aws ecr-public create-repository --repository-name {{.PROJECT_NAME}} --region {{.AWS_REGION}} 2>/dev/null || true
-        helm push {{.PROJECT_NAME}}-{{.SEMVER}}.tgz {{.AWS_REPO_URL}} || (echo "ERROR: helm chart could not be pushed. Did you provide AWS credentials?" && exit 99)
+        aws ecr-public create-repository --repository-name {{.CHART_NAME}} --region {{.AWS_REGION}} 2>/dev/null || true
+        helm push {{.CHART_NAME}}-{{.SEMVER}}.tgz {{.AWS_REPO_URL}} || (echo "ERROR: helm chart could not be pushed. Did you provide AWS credentials?" && exit 99)
 
   deploy:
-    desc: Deploy the Helm chart to the grapple cluster
+    desc: Deploy the Helm chart to the Grapple cluster
     cmds:
       - |
         # patch the chart:
@@ -331,10 +412,10 @@ tasks:
         yq e -i '.image.repository = "{{.IMAGE_REGISTRY}}/{{.IMAGE_REPO}}"' {{.VALUES_YAML_PATH}}
         yq e -i '.image.tag = "{{.TAG}}"' {{.VALUES_YAML_PATH}}
 
-        helm upgrade --install {{.PROJECT_NAME}} {{.AWS_REPO_URL}}/{{.PROJECT_NAME}} --version {{.SEMVER}} --namespace {{.NS}} --create-namespace
+        helm upgrade --install {{.CHART_NAME}} {{.AWS_REPO_URL}}/{{.CHART_NAME}} --version {{.SEMVER}} --namespace {{.NS}} --create-namespace
 
   deploy-local:
-    desc: Deploy the Helm chart to the grapple cluster
+    desc: Deploy the Helm chart to the Grapple cluster
     vars:
       STAGE:
         sh: if [ "{{.STAGE}}" = "prd" ]; then echo "dev"; else echo "{{.STAGE}}"; fi
@@ -353,7 +434,7 @@ tasks:
         # run dependency update in order to prevent issue on the first build
         helm dep up chart
 
-        helm upgrade --install {{.PROJECT_NAME}} {{.CHART_FOLDER}} --namespace "{{.PROJECT_NAME_SHORT}}-{{.STAGE}}-{{.GIT_HASH}}" --create-namespace
+        helm upgrade --install {{.CHART_NAME}} {{.CHART_FOLDER}} --namespace "{{.CHART_NAME_SHORT}}-{{.STAGE}}-{{.GIT_HASH}}" --create-namespace
 
   build-and-deploy-local:
     desc: Build, package, and push the Helm chart in one step

@@ -143,3 +143,6 @@ pr_id.txt
 # Ignore grapple specific stuff
 gruim/custommodules/list.json
 grapi/controllers/index.ts
+
+# ignore all *.bak files
+**/*.bak

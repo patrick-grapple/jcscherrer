@@ -5,6 +5,8 @@ WORKDIR /app
 
 # Copy package.json and package-lock.json
 COPY package*.json ./
+COPY tsconfig.json ./
+COPY tailwind.config.js ./
 
 # Install dependencies
 RUN npm install -g pnpm && pnpm i

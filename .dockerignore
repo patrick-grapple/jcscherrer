@@ -19,3 +19,4 @@ skaffold.yaml
 docker-compose.yaml
 devspace.yaml
 *.tgz
+Taskfile.yaml
