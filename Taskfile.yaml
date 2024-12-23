@@ -9,7 +9,7 @@ vars:
   BASE: "gras-deploy"
   CHART_FOLDER: "./chart"
   CHART_NAME: # use the current folder as the chart name
-    sh: echo ${PWD##*/}
+    sh: if [ "$(echo ${PWD##*/})" != "build" ]; then echo ${PWD##*/}; else; echo ${PROJECT_NAME_SHORT}; fi
   CHART_NAME_SHORT: # use the current folder as the chart name
     sh: |
         string="${PWD##*/}"
