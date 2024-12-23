@@ -29,8 +29,8 @@ WORKDIR /app
 
 # Copy built files from the build stage to the production image
 # COPY --from=build /app/dist /usr/share/nginx/html
-COPY *.js .
-COPY *.json .
+COPY *.js ./
+COPY *.json ./
 COPY src /app/src
 
 RUN pnpm i
