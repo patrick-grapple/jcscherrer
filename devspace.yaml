@@ -50,13 +50,13 @@ images:
   app:
     image: "${IMAGE_REGISTRY}/${IMAGE_REPO}:devspace"
     dockerfile: ./Dockerfile
-    buildKit: {}
-      # args: [--platform, 'linux/amd64,linux/arm64']
+    buildKit: # {} # implemented for bitbucket pipeline with the patch at the end of this file
+      args: [--platform, 'linux/amd64,linux/arm64']
   data:
     image: "${IMAGE_REGISTRY}/${IMAGE_REPO}-data:devspace"
     dockerfile: ./Dockerfile.data
-    buildKit: {}
-      # args: [--platform, 'linux/amd64,linux/arm64']
+    buildKit: # {} # implemented for bitbucket pipeline with the patch at the end of this file
+      args: [--platform, 'linux/amd64,linux/arm64']
 # This is a list of `deployments` that DevSpace can create for this project
 deployments:
   app:
