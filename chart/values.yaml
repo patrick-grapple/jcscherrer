@@ -196,7 +196,7 @@ gras-deploy:
 replicaCount: 1
 image:
   repository: grpl/grapple-template-pr
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: "0.1.45.pr-33"
 imagetest:
