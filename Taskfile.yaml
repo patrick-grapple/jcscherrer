@@ -453,6 +453,31 @@ tasks:
 
         helm upgrade --install {{.CHART_NAME}} {{.CHART_FOLDER}} --namespace "{{.CHART_NAME_SHORT}}-{{.STAGE}}-{{.GIT_HASH}}" --create-namespace
 
+
+  update-bitbucket-pr:
+    desc: Deploy the Helm chart to the Grapple cluster
+    cmds:
+      - |
+        APPURL=$(kubectl get ing -n {{.NS}} -l app.kubernetes.io/name=app -o jsonpath="{.items[0].spec.rules[0].host}")
+        echo "APPURL: ${APPURL}"
+        GRUIMURL=$(kubectl get ing -n {{.NS}} -l app.kubernetes.io/name=gruim -o jsonpath="{.items[0].spec.rules[0].host}")
+        echo "GRUIMURL: ${GRUIMURL}"
+        GRAPIURL=$(kubectl get ing -n {{.NS}} -l app.kubernetes.io/name=grapi -o jsonpath="{.items[0].spec.rules[0].host}")
+        echo "GRAPIURL: ${GRAPIURL}"
+        if [ "${BITBUCKET_PR_ID}" != "" ]; then
+          curl https://api.bitbucket.org/2.0/repositories/wolke7-patrick/jcs/pullrequests/${BITBUCKET_PR_ID}/comments \
+            -u ${bbuser}:${bbpw} \
+            --request POST \
+            --header 'Content-Type: application/json' \
+            --data "{
+            \"content\": {
+                \"raw\": \"TestURL (app): [http://${APPURL}](http://${APPURL}) -- Frontend (gruim): [http://${GRUIMURL}](http://${GRUIMURL}) -- Backend (grapi): [http://${GRAPIURL}](http://${GRAPIURL})\"
+            }
+            }"
+        fi
+
+
+
   build-and-deploy-local:
     desc: Build, package, and push the Helm chart in one step
     cmds:
