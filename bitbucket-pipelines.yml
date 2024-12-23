@@ -70,8 +70,8 @@ pipelines:
         # - step: *externalsecrets
         - step:
             name: 'Deployment of PR to nop'
-            caches:
-              - docker
+            # caches:
+            #   - docker
             script:
               - civo apikey save cloud20x ${civokey} && civo region current ${civoregion} 
               - until [ $(civo k8s show -o custom -f Status ${name}-${stage}) = "ACTIVE" ]; do echo -n "."; sleep 3; done
@@ -102,8 +102,8 @@ pipelines:
         - step: *externalsecrets
         - step:
             name: 'Deployment to UAT'
-            caches:
-              - docker
+            # caches:
+            #   - docker
             script:
               - civo apikey save cloud20x ${civokey} && civo region current ${civoregion} 
               - until [ $(civo k8s show -o custom -f Status ${name}-${stage}) = "ACTIVE" ]; do echo -n "."; sleep 3; done
