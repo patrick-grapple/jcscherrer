@@ -2,33 +2,18 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+dblocal:
+  enabled: true
+testdata:
+  enabled: true
+
 gras-deploy:
   grapi:
-    externalsecrets:
-      - name: "classicmodelsas-auroramysql"
-        spec:
-          refreshInterval: 1h
-          secretStoreRef:
-            name: aws-secretstore
-            kind: ClusterSecretStore
-          target:
-            name: auroramysql
-            creationPolicy: Owner
-          dataFrom:
-            - extract:
-                key: cloud20x/rds/auroramysql
-      - name: "jcscherrer-bexio"
-        spec:
-          refreshInterval: 1h
-          secretStoreRef:
-            name: aws-secretstore
-            kind: ClusterSecretStore
-          target:
-            name: jcscherrer-bexio
-            creationPolicy: Owner
-          dataFrom:
-            - extract:
-                key: cloud20x/jcscherrer/bexionop
+    ssl: false
+    autorestartgruim: false
+    externalsecrets: []
+    extraSecrets: 
+    - app-jcscherrer-conn-credential
     datasources:
       - name: jcscherrer
         spec:
@@ -40,3 +25,22 @@ gras-deploy:
             port: $(port)
             url: ""
             user: $(username)
+    initContainers:
+      - name: test
+        spec:
+          name: init-db
+          image: grpl/jcscherrer-data:data
+          command:
+            - bash
+            - -c
+            - |
+              sleep 5;
+              while ! mysql -h $(host) -P $(port) -u $(username) -p$(password) -e "show databases;" 2>/dev/null; do 
+                echo -n .; 
+                sleep 2; 
+              done; 
+              if mysql -h $(host) -P $(port) -u $(username) -p$(password) -e "USE jcscherrer; SET @tablename := (select table_name from information_schema.tables where table_type = 'BASE TABLE' and table_schema = 'jcscherrer' limit 1); set @qry1:= concat('select * from ',@tablename,' limit 1'); prepare stmt from @qry1 ; execute stmt ;" ; then
+                echo "database already exists..."; 
+              else 
+                mysql -h $(host) -P $(port) -u $(username) -p$(password) < ./db.sql; 
+              fi

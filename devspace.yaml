@@ -178,3 +178,6 @@ profiles:
     patches:
       - op: remove
         path: images.app.buildKit
+    patches:
+      - op: remove
+        path: images.data.buildKit
