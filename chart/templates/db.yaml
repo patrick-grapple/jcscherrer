@@ -1,3 +1,4 @@
+{{- if .Values.dblocal -}}
 {{- if .Values.dblocal.enabled -}}
 apiVersion: apps.kubeblocks.io/v1alpha1
 kind: Cluster
@@ -26,4 +27,5 @@ spec:
           requests:
             storage: 20Gi
   terminationPolicy: Delete
+{{- end }}
 {{- end }}
