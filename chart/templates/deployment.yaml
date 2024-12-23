@@ -38,6 +38,11 @@ spec:
                 configMapKeyRef:
                   name: "{{ .Release.Namespace }}-{{ .Release.Name }}-gruim-muim"
                   key: remoteentry
+            - name: SVELTE_APP_REMOTE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: "{{ .Release.Namespace }}-{{ .Release.Name }}-gruim-muim"
+                  key: remoteentry
           {{- if .Values.env }}
             {{- toYaml .Values.env | nindent 12 }}
           {{- end }}
@@ -63,6 +68,11 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: REMOTE_ENTRY_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: "{{ .Release.Namespace }}-{{ .Release.Name }}-gruim-muim"
+                  key: remoteentry
+            - name: SVELTE_APP_REMOTE_URL
               valueFrom:
                 configMapKeyRef:
                   name: "{{ .Release.Namespace }}-{{ .Release.Name }}-gruim-muim"
