@@ -417,18 +417,19 @@ tasks:
         VALUES_STAGE=$(echo "{{.VALUES_YAML_PATH}}" | sed "s,.yaml,-{{.STAGE}}.yaml,g")
         echo "VALUES_STAGE: ${VALUES_STAGE}"
         if [ -f ${VALUES_STAGE} ]; then
-          VALUES_FILE_STAGE=" --values ${VALUES_STAGE} "
 
           # patch data container:
-          yq e -i '.gras-deploy.grapi.initContainers[0].spec.image = "grpl/jcs-pr-data:{{.TAG}}"' {{.VALUES_FILE_STAGE}}
+          yq e -i '.gras-deploy.grapi.initContainers[0].spec.image = "grpl/jcs-pr-data:{{.TAG}}"' ${VALUES_STAGE} || true
+
+          VALUES_FILE_COMMAND=" --values ${VALUES_STAGE} "
+          echo "VALUES_FILE_STAGE: ${VALUES_FILE_STAGE}"
 
         else
           VALUES_FILE_STAGE=""
         fi
-        echo "VALUES_FILE_STAGE: ${VALUES_FILE_STAGE}"
 
 
-        helm upgrade --install {{.CHART_NAME}} {{.AWS_REPO_URL}}/{{.CHART_NAME}} ${VALUES_FILE_STAGE} --version {{.SEMVER}} --namespace {{.NS}} --create-namespace
+        helm upgrade --install {{.CHART_NAME}} {{.AWS_REPO_URL}}/{{.CHART_NAME}} ${VALUES_FILE_COMMAND} --version {{.SEMVER}} --namespace {{.NS}} --create-namespace
 
   deploy-local:
     desc: Deploy the Helm chart to the Grapple cluster
