@@ -12,7 +12,7 @@ vars:
     sh: if [ "$(echo ${PWD##*/})" != "build" ]; then echo ${PWD##*/}; else echo ${PROJECT_NAME_SHORT}; fi
   CHART_NAME_SHORT: # use the current folder as the chart name
     sh: |
-        string="${PWD##*/}"
+        string="$(if [ "$(echo ${PWD##*/})" != "build" ]; then echo ${PWD##*/}; else echo ${PROJECT_NAME_SHORT}; fi)"
         string="${string//[.\']/}"
         string="${string//[!a-zA-Z ]/ }"
         acronym=''
@@ -415,11 +415,13 @@ tasks:
         yq e -i '.image.tag = "{{.TAG}}"' {{.VALUES_YAML_PATH}}
 
         VALUES_STAGE=$(echo "${VALUES_YAML_PATH}" | sed "s,.yaml,-${STAGE}.yaml,g")
+        echo "VALUES_STAGE: ${VALUES_STAGE}"
         if [ ! -f ${VALUES_STAGE} ]; then
           VALUES_FILE_STAGE=" --values ${VALUES_STAGE} "
         else
           VALUES_FILE_STAGE=""
         fi
+        echo "VALUES_FILE_STAGE: ${VALUES_FILE_STAGE}"
 
         helm upgrade --install {{.CHART_NAME}} {{.AWS_REPO_URL}}/{{.CHART_NAME}} ${VALUES_FILE_STAGE} --version {{.SEMVER}} --namespace {{.NS}} --create-namespace
 
