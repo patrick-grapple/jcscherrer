@@ -29,7 +29,8 @@ gras-deploy:
       - name: test
         spec:
           name: init-db
-          image: grpl/jcscherrer-data:data
+          image: grpl/jcs-pr-data:data
+          # image: grpl/jcs-pr-data:0.1.0.pr-11
           command:
             - bash
             - -c
