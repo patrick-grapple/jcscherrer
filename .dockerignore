@@ -20,3 +20,4 @@ docker-compose.yaml
 devspace.yaml
 *.tgz
 Taskfile.yaml
+bitbucket-pipelines.yml
