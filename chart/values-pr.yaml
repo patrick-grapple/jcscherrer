@@ -13,7 +13,7 @@ gras-deploy:
     autorestartgruim: false
     externalsecrets: []
     extraSecrets: 
-    - app-jcscherrer-conn-credential
+    - jcs-conn-credential
     datasources:
       - name: jcscherrer
         spec:
