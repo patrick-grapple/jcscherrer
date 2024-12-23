@@ -458,7 +458,7 @@ tasks:
     desc: Deploy the Helm chart to the Grapple cluster
     cmds:
       - |
-        APPURL=$(kubectl get ing -n {{.NS}} -l app.kubernetes.io/name=app -o jsonpath="{.items[0].spec.rules[0].host}")
+        APPURL=$(kubectl get ing -n {{.NS}} -l app.kubernetes.io/layer=app -o jsonpath="{.items[0].spec.rules[0].host}")
         echo "APPURL: ${APPURL}"
         GRUIMURL=$(kubectl get ing -n {{.NS}} -l app.kubernetes.io/name=gruim -o jsonpath="{.items[0].spec.rules[0].host}")
         echo "GRUIMURL: ${GRUIMURL}"
