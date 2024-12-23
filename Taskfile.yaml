@@ -414,9 +414,9 @@ tasks:
         yq e -i '.image.repository = "{{.IMAGE_REGISTRY}}/{{.IMAGE_REPO}}"' {{.VALUES_YAML_PATH}}
         yq e -i '.image.tag = "{{.TAG}}"' {{.VALUES_YAML_PATH}}
 
-        VALUES_STAGE=$(echo "{{.VALUES_YAML_PATH}}" | sed "s,.yaml,-${STAGE}.yaml,g")
+        VALUES_STAGE=$(echo "{{.VALUES_YAML_PATH}}" | sed "s,.yaml,-{{.STAGE}}.yaml,g")
         echo "VALUES_STAGE: ${VALUES_STAGE}"
-        if [ ! -f ${VALUES_STAGE} ]; then
+        if [ -f ${VALUES_STAGE} ]; then
           VALUES_FILE_STAGE=" --values ${VALUES_STAGE} "
         else
           VALUES_FILE_STAGE=""
