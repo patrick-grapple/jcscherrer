@@ -125,7 +125,8 @@ tasks:
       - |
         yq e -i '.vars.IMAGE_REGISTRY = "{{.IMAGE_REGISTRY}}"' devspace.yaml
         yq e -i '.vars.IMAGE_REPO = "{{.IMAGE_REPO}}"' devspace.yaml
-        devspace build --skip-push --tag {{.TAG}} -n default --no-warn
+        # devspace build --skip-push --tag {{.TAG}} -n default --no-warn
+        devspace run-pipeline build-app --skip-push --tag {{.TAG}} -n default --no-warn
 
   build-and-push-images:
     desc: Build the images
@@ -133,7 +134,8 @@ tasks:
       - |
         yq e -i '.vars.IMAGE_REGISTRY = "{{.IMAGE_REGISTRY}}"' devspace.yaml
         yq e -i '.vars.IMAGE_REPO = "{{.IMAGE_REPO}}"' devspace.yaml
-        devspace build --tag {{.TAG}} -n default --no-warn
+        # devspace build --tag {{.TAG}} -n default --no-warn
+        devspace run-pipeline build-app --tag {{.TAG}} -n default --no-warn
 
   build-images-local:
     desc: Build the images

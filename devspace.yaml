@@ -12,6 +12,10 @@ functions:
       task reset-values-file
 # This is a list of `pipelines` that DevSpace can execute (you can define your own)
 pipelines:
+  build: |-
+    build_images --all
+  build-app: |-
+    build_images app
   # This is the pipeline for the main command: `devspace dev` (or `devspace run-pipeline dev`)
   dev:
     run: |-
@@ -46,13 +50,13 @@ images:
   app:
     image: "${IMAGE_REGISTRY}/${IMAGE_REPO}:devspace"
     dockerfile: ./Dockerfile
-    buildKit: # {}
-      args: [--platform, 'linux/amd64,linux/arm64']
+    buildKit: {}
+      # args: [--platform, 'linux/amd64,linux/arm64']
   data:
     image: "${IMAGE_REGISTRY}/${IMAGE_REPO}-data:devspace"
     dockerfile: ./Dockerfile.data
-    buildKit: # {}
-      args: [--platform, 'linux/amd64,linux/arm64']
+    buildKit: {}
+      # args: [--platform, 'linux/amd64,linux/arm64']
 # This is a list of `deployments` that DevSpace can create for this project
 deployments:
   app:
