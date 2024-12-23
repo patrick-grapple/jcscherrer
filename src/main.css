@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.selected-day-cell {
+  @apply !bg-primary-500 !border-2 !text-white;
+}
+
+.fc-prev-button {
+  @apply !bg-primary-500 transition-colors hover:!bg-primary-600  hover:!border-primary-500 focus:!shadow-none focus:!bg-primary-600;
+}
+
+.fc-next-button {
+  @apply !bg-primary-500 transition-colors hover:!bg-primary-600  hover:!border-primary-500 focus:!shadow-none focus:!bg-primary-600;
+}
+
+.fc-today-button {
+  @apply !bg-accent-500 !border-accent-300 !opacity-100 hover:!bg-accent-600  transition-colors !cursor-pointer;
+}
+
+.single-day-event-style {
+  /* align vertically */
+  @apply !flex !flex-col !justify-center;
+}
+
+.fc-event-main {
+  @apply !h-auto;
+}
+
+.dotted-dashed {
+  @apply !border-dashed !border-2 p-1;
+}
+
+/* customize scroll bar css */
+::-webkit-scrollbar {
+  @apply w-[10px] h-[10px];
+}
+
+::-webkit-scrollbar-track {
+  @apply rounded-3xl bg-slate-300;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-zinc-400 rounded-3xl border-[3px] border-solid border-slate-400;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-zinc-500;
+}

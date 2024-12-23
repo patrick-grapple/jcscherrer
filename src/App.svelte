@@ -1,110 +1,57 @@
-<script>
-  import dayjs from "dayjs";
+<script lang="ts">
+  import { Router, Route } from "svelte-navigator";
+  import Header from "./components/shared/header/header.svelte";
+  import Admin from "./routes/admin/index.svelte";
+  import Gruppe from "./routes/admin/gruppe.svelte";
+  import Kunde from "./routes/admin/kunde.svelte";
+  import Platz from "./routes/admin/platz.svelte";
+  import Rapport from "./routes/admin/rapport.svelte";
+  import Trainer from "./routes/admin/trainer.svelte";
+  import Invoice from "./routes/admin/invoice.svelte";
+  import InvoicedRapport from "./routes/admin/invoiced-rapports.svelte";
+  import Index from "./routes/index.svelte";
+  import Auth from "./components/auth/auth.svelte";
+  import Product from "./routes/admin/product.svelte";
+  import KundeThrough from "./routes/admin/kunde-through.svelte";
+  import ArchivedRapports from "./routes/admin/archived-rapports.svelte";
+  import InvoiceConfig from "./routes/admin/invoice-config.svelte";
 
-  // demofullclassicmodelsasas
-  let el1;
-  import("App/Employees/count").then((module) => {
-    const Count = module.default;
-    new Count({
-      target: el1,
-      props: {
-        // filter: { where:{ "postalCode":44000 } },
-        // css: "background-color: rgb(204 90 113 / var(--tw-bg-opacity));"
-        // css: "display: none;"
-      },
-    });
-  });
+  // get authed from localstorage
+  let authed: string | boolean | null = localStorage.getItem("auth");
 
-  let el2;
-  import("App/Employees/findById").then((module) => {
-    // import("App/Orders/updateById").then((module) => {
-    const FindById = module.default;
-    new FindById({
-      target: el2,
-      props: {
-        id: 1002,
-        schema: {
-          "field-properties": {
-            "field-order": [
-              "id",
-              "customerName",
-              "contactLastName",
-              "contactFirstName",
-              "postalCode",
-              "city",
-              "country",
-            ],
-            "hidden-fields": ["state", "addressLine2", "creditLimit"],
-            "date-fields": [
-              { name: "orderDate", type: "date" },
-              { name: "shippedDate", type: "time" },
-            ],
-          },
-        },
-        // dateFormat: 'DD.MM.YYYY - HH:mm',
-        // css: "color: orange;  font-weight: bold; border-color: orange; ",
-        // css: "display: none;"
-      },
-    });
-  });
-
-  let el3;
-  import("App/Employees/find").then((module) => {
-    const Find = module.default;
-    new Find({
-      target: el3,
-      props: {
-        // filter: {"limit":10, "where":{"customersId":363}},
-        filter: { limit: 10 },
-        schema: {
-          "field-properties": {
-            "field-order": [
-              "id",
-              "customerName",
-              "contactLastName",
-              "contactFirstName",
-              "postalCode",
-              "city",
-              "country",
-            ],
-            "hidden-fields": ["state", "addressLine2", "creditLimit"],
-            "date-fields": [
-              { name: "orderDate", type: "date" },
-              { name: "shippedDate", type: "time" },
-            ],
-          },
-        },
-        translation: {
-          customerName: "Name des Kunden",
-          contactLastName: "Nachname",
-          contactFirstName: "Vorname",
-          postalCode: "PLZ",
-          city: "Ort",
-          "No more items":
-            "Es gibt keine weiteren Elemente mit diesen Kriterien",
-          "Load More": "Weitere Elemente anzeigen",
-        },
-        // dateFormat: 'DD.MM.YYYY - HH:mm',
-        // // useLocalTimezone: true,
-        enableFilter: false,
-        enableLoadMore: false,
-        // css: "color: orange;  font-weight: bold; border-color: orange; ",
-        // css: "font-size: 1vw; min-width: 8rem; padding:0.1rem; padding-left:.5rem; color: orange;  font-weight: bold; border-color: lightgray;",
-        // css: "display: none;"
-      },
-    });
-  });
+  if (authed) {
+    authed = true;
+  }
 </script>
 
-<div class="max-w-6xl m-auto felx p-8">
-  <!-- <div class="text-3xl">Customers, This is from the svelte application</div> -->
+<Router primary={false}>
+  <Route path="/" component={Index} />
 
-  <div class="p-8 grid gap-3">
-    <div>
-      <!-- <h2 class="text-xl">Count</h2> -->
-      <div class="uimodule" bind:this={el1} style="width:350px;" />
-      <div class="uimodule" bind:this={el2} />
-      <div class="uimodule" bind:this={el3} />
-    </div>
-  </div>
-</div>
+  <Route path="admin/*">
+    {#if !authed}
+      <Auth />
+    {:else}
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <Header />
+        </div>
+        <div class="flex-1 p-4 md:p-6 pb-16">
+          <Route path="">
+            <Admin />
+          </Route>
+          <Route path="gruppe" component={Gruppe} />
+          <Route path="kunde" component={Kunde} />
+          <Route path="product" component={Product} />
+          <Route path="platz" component={Platz} />
+          <Route path="rapport" component={Rapport} />
+          <Route path="trainer" component={Trainer} />
+          <Route path="invoice" component={Invoice} />
+          <Route path="invoiced-rapports" component={InvoicedRapport} />
+          <Route path="kundeThrough" component={KundeThrough} />
+          <Route path="archived-rapports" component={ArchivedRapports} />
+          <Route path="invoice-config" component={InvoiceConfig} />
+        </div>
+      </div>
+    {/if}
+  </Route>
+</Router>

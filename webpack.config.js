@@ -2,16 +2,21 @@ const HtmlWebPackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
 const path = require("path");
-
+const webpack = require("webpack");
 const sveltePreprocess = require("svelte-preprocess");
+const includeEnv = require("svelte-environment-variables");
 
 const mode = process.env.NODE_ENV || "development";
 const prod = mode === "production";
 
 module.exports = {
+  entry: "./src/main.ts",
+
   output: {
-    // publicPath: prod?  "/modules/": "http://localhost:4001/",
-    publicPath: "auto",
+    path: __dirname + "/public",
+    // in prod it is to auto.  localhost:8080 is used for development
+    publicPath: "/",
+    // publicPath: "auto",
   },
 
   resolve: {
@@ -28,12 +33,19 @@ module.exports = {
 
   devServer: {
     port: 4000,
-    historyApiFallback: true,
+    historyApiFallback: {
+      index: "/",
+    },
     allowedHosts: "all",
   },
 
   module: {
     rules: [
+      {
+        test: /\.ts$/,
+        loader: "ts-loader",
+        exclude: /node_modules/,
+      },
       {
         test: /\.svelte$/,
         use: {
@@ -47,17 +59,6 @@ module.exports = {
             preprocess: sveltePreprocess({ sourceMap: true }),
           },
         },
-      },
-      {
-        test: /\.(m?js|ts)/,
-        type: "javascript/auto",
-        resolve: {
-          fullySpecified: false,
-        },
-      },
-      {
-        test: /\.(css|s[ac]ss)$/i,
-        use: ["style-loader", "css-loader", "postcss-loader"],
       },
       {
         test: /\.css$/,
@@ -82,34 +83,40 @@ module.exports = {
         ],
       },
       {
-        test: /\.(ts|tsx|js|jsx)$/,
-        exclude: /node_modules/,
-        use: {
-          loader: "babel-loader",
-        },
+        test: /\.(png|jpe?g|gif)$/i,
+        use: [
+          {
+            loader: "file-loader",
+          },
+        ],
       },
     ],
   },
 
   mode,
-
   plugins: [
-    new ModuleFederationPlugin({
-      name: "client",
-      filename: "remoteEntry.js",
-      remotes: {
-        // Change the remote name to match with the exposed module's name
-        App: `${process.env.CONTAINER_NAME}@${process.env.SVELTE_APP_REMOTE_URL}/remoteEntry.js`,
-      },
-      exposes: {},
-      shared: {},
-    }),
     new MiniCssExtractPlugin({
       filename: "[name].css",
     }),
     new HtmlWebPackPlugin({
       template: "./src/index.html",
+      chunks: ["main"],
+    }),
+    new webpack.DefinePlugin({
+      ...includeEnv(),
+    }),
+    new ModuleFederationPlugin({
+      // only alphanumeric characters are allowed.
+      name: "consumer",
+      remotes: {
+        // App: "Components@http://localhost:3000/remoteEntry.js", // local
+        // App: "jcsbojcsboasas@https://jcs-bo-jcs-boas-as-ui.jcscherrer.cloud20x.com/remoteEntry.js", // prod
+        // App: "jcsbodevjcsbodevasas@https://jcs-bo-dev-jcs-bo-devas-as-ui.uat.cloud20x.com/remoteEntry.js", // uat
+        App: `${process.env.CONTAINER_NAME}@${process.env.SVELTE_APP_REMOTE_URL}/remoteEntry.js`,
+      },
     }),
   ],
   devtool: prod ? false : "source-map",
 };
+console.log("SVELTE_APP_REMOTE_URL: ${process.env.SVELTE_APP_REMOTE_URL}");
+console.log("CONTAINER_NAME: ${process.env.CONTAINER_NAME}");

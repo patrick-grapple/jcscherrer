@@ -24,7 +24,7 @@ if [[ -z "${DEV}" ]]; then
     done || echo "\n\nERROR: ${SVELTE_APP_REMOTE_URL} did not return a json object..."
     
     pnpm build
-    cp /app/dist/* /usr/share/nginx/html/.
+    cp /app/public/* /usr/share/nginx/html/.
     nginx -g 'daemon off;'
 else
 

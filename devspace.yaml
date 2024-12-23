@@ -1,27 +1,61 @@
 version: v2beta1
-name: grapple-template
+name: jcscherrer
 vars:
   IMAGE_REGISTRY: "grpl"
-  IMAGE_REPO: "grapple-template"
+  IMAGE_REPO: "jcscherrer"
+functions:
+  patch-values-file: |-
+      task patch-values-file
+  patch-values-file-patches-only: |-
+      task patch-values-file-patches-only
+  reset-values-file: |-
+      task reset-values-file
 # This is a list of `pipelines` that DevSpace can execute (you can define your own)
 pipelines:
+  build: |-
+    build_images --all
+  build-app: |-
+    build_images app
   # This is the pipeline for the main command: `devspace dev` (or `devspace run-pipeline dev`)
   dev:
-    run: "run_dependencies --all       # 1. Deploy any projects this project needs (see \"dependencies\")\nensure_pull_secrets --all    # 2. Ensure pull secrets\nbuild_images --all -t $(git describe --always)    # 3. Build, tag (git commit hash) and push all images (see \"images\")\ncreate_deployments --all     # 3. Deploy Helm charts and manifests specfied as \"deployments\"\necho \"waiting on chart deployment...\"\n# TODO: find a solution for windows (while is not working on windows)...\nsleep 20\n# while ! kubectl get deploy -l app.kubernetes.io/name=grapi 2>/dev/null | grep grapi; do echo -n \".\"; sleep 1; done\n# kubectl get deploy -l app.kubernetes.io/name=grapi --for=condition=available\nstart_dev grapi\nstart_dev gruim              \nstart_dev app                # 4. Start dev mode \"app\" (see \"dev\" section)"
+    run: |-
+      # patch-values-file-patches-only
+      patch-values-file
+      run_dependencies --all       # 1. Deploy any projects this project needs (see "dependencies")
+      ensure_pull_secrets --all    # 2. Ensure pull secrets
+      build_images --all -t $(git describe --always)    # 3. Build, tag (git commit hash) and push all images (see "images")
+      create_deployments --all     # 3. Deploy Helm charts and manifests specfied as "deployments"
+      echo "waiting on chart deployment..."
+      # TODO: find a solution for windows (while is not working on windows)...
+      sleep 10
+      reset-values-file
+      sleep 10
+      # while ! kubectl get deploy -l app.kubernetes.io/name=grapi 2>/dev/null | grep grapi; do echo -n \".\"; sleep 1; done
+      # kubectl get deploy -l app.kubernetes.io/name=grapi --for=condition=available
+      start_dev grapi
+      start_dev gruim
+      start_dev app                # 4. Start dev mode \"app\" (see \"dev\" section)
   # You can run this pipeline via `devspace deploy` (or `devspace run-pipeline deploy`)
   deploy:
     run: |-
+      patch-values-file
       run_dependencies --all                            # 1. Deploy any projects this project needs (see "dependencies")
       ensure_pull_secrets --all                         # 2. Ensure pull secrets
       build_images --all -t $(git describe --always)    # 3. Build, tag (git commit hash) and push all images (see "images")
       create_deployments --all                          # 4. Deploy Helm charts and manifests specfied as "deployments"
+      reset-values-file
 # This is a list of `images` that DevSpace can build for this project
 # We recommend to skip image building during development (devspace dev) as much as possible
 images:
   app:
     image: "${IMAGE_REGISTRY}/${IMAGE_REPO}:devspace"
     dockerfile: ./Dockerfile
-    buildKit: # {}
+    buildKit: # {} # implemented for bitbucket pipeline with the patch at the end of this file
+      args: [--platform, 'linux/amd64,linux/arm64']
+  data:
+    image: "${IMAGE_REGISTRY}/${IMAGE_REPO}-data:devspace"
+    dockerfile: ./Dockerfile.data
+    buildKit: # {} # implemented for bitbucket pipeline with the patch at the end of this file
       args: [--platform, 'linux/amd64,linux/arm64']
 # This is a list of `deployments` that DevSpace can create for this project
 deployments:
@@ -80,7 +114,7 @@ dev:
     # Search for the container that runs this image
     labelSelector:
       app.kubernetes.io/name: gruim
-    devImage: docker.io/grpl/gruim:0.2.4
+    devImage: docker.io/grpl/gruim:0.2.9
     env:
       - name: DEV
         value: "true"
@@ -99,7 +133,7 @@ dev:
     # Search for the container that runs this image
     labelSelector:
       app.kubernetes.io/name: grapi
-    devImage: docker.io/grpl/grapi:0.2.4
+    devImage: docker.io/grpl/grapi:0.2.9
     env:
       - name: DEV
         value: "true"
@@ -137,10 +171,12 @@ commands:
 # localRegistry:
 #   localbuild: truede
 profiles:
-- name: bitbucket
-  activation:
-  - vars:
-      CI: true
-  patches:
-  - op: remove
-    path: images.app.buildKit
+  - name: bitbucket
+    activation:
+      - vars:
+          CI: true
+    patches:
+      - op: remove
+        path: images.app.buildKit
+      - op: remove
+        path: images.data.buildKit
