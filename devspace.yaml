@@ -23,13 +23,14 @@ pipelines:
       create_deployments --all     # 3. Deploy Helm charts and manifests specfied as "deployments"
       echo "waiting on chart deployment..."
       # TODO: find a solution for windows (while is not working on windows)...
-      sleep 20
+      sleep 10
+      reset-values-file
+      sleep 10
       # while ! kubectl get deploy -l app.kubernetes.io/name=grapi 2>/dev/null | grep grapi; do echo -n \".\"; sleep 1; done
       # kubectl get deploy -l app.kubernetes.io/name=grapi --for=condition=available
       start_dev grapi
       start_dev gruim
       start_dev app                # 4. Start dev mode \"app\" (see \"dev\" section)
-      reset-values-file
   # You can run this pipeline via `devspace deploy` (or `devspace run-pipeline deploy`)
   deploy:
     run: |-

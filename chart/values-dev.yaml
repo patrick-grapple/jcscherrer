@@ -24,8 +24,16 @@ gras-deploy:
     extraSecrets: 
     - app-jcscherrer-conn-credential
     datasources:
-      - content: '{ "name": "jcscherrer", "connector": "mysql", "url": "", "host": "${host}", "port": "${port}", "user": "${username}", "password": "${password}", "database": "jcscherrer"}'
-        name: jcscherrer
+      - name: jcscherrer
+        spec:
+          mysql:
+            database: jcscherrer
+            host: $(host)
+            name: jcscherrer
+            password: $(password)
+            port: $(port)
+            url: ""
+            user: $(username)
     initContainers:
       - name: test
         spec:

@@ -10,6 +10,7 @@ gras-deploy:
   gras: {}
   grapi:
     # beimagetag: "v0.130"
+    automigrate: false
     discoveredrepos: true
     ingress: true
     ssl: true
@@ -40,41 +41,147 @@ gras-deploy:
             - extract:
                 key: cloud20x/jcscherrer/bexionop
     datasources:
-      - content: '{ "name": "jcscherrer", "connector": "mysql", "url": "", "host": "${host}", "port": "${port}", "user": "${username}", "password": "${password}", "database": "jcscherrer"}'
-        name: jcscherrer
+      - name: jcscherrer
+        spec:
+          mysql:
+            database: jcscherrer
+            host: $(host)
+            name: jcscherrer
+            password: $(password)
+            port: $(port)
+            url: ""
+            user: $(username)
     discoveries:
-      - content: '{"dataSource":"jcscherrer","schema":"jcscherrer","all":"true","disableCamelCase":false}'
-        name: jcscherrer
+      - name: jcscherrer
+        spec:
+          all: true
+          dataSource: jcscherrer
+          disableCamelCase: false
+          schema: jcscherrer
     relations:
-      - content: '{"sourceModel": "Rapport", "destinationModel": "Trainer", "foreignKeyName": "trainerId", "relationType": "belongsTo", "registerInclusionResolver": true}'
-        name: trainer
-      - content: '{"sourceModel": "Rapport", "destinationModel": "Platz", "foreignKeyName": "platzId", "relationType": "belongsTo", "registerInclusionResolver": true}'
-        name: platz
-      - content: '{"sourceModel": "Rapport", "destinationModel": "Kunde", "foreignKeyName": "kundeId", "relationType": "belongsTo", "registerInclusionResolver": true}'
-        name: kunde
-      - content: '{"sourceModel": "Rapport", "destinationModel": "Gruppe", "foreignKeyName": "gruppeId", "relationType": "belongsTo", "registerInclusionResolver": true}'
-        name: gruppe
-      - content: '{"sourceModel": "Rapport", "destinationModel": "Invoices", "foreignKeyName": "rapportId", "relationType": "hasMany", "registerInclusionResolver": true}'
-        name: invoice
-      - content: '{"sourceModel": "ArchivedRapport", "destinationModel": "Trainer", "foreignKeyName": "trainerId", "relationType": "belongsTo", "registerInclusionResolver": true}'
-        name: trainerarchived
-      - content: '{"sourceModel": "ArchivedRapport", "destinationModel": "Platz", "foreignKeyName": "platzId", "relationType": "belongsTo", "registerInclusionResolver": true}'
-        name: platzarchived
-      - content: '{"sourceModel": "ArchivedRapport", "destinationModel": "Kunde", "foreignKeyName": "kundeId", "relationType": "belongsTo", "registerInclusionResolver": true}'
-        name: kundearchived
-      - content: '{"sourceModel": "ArchivedRapport", "destinationModel": "Gruppe", "foreignKeyName": "gruppeId", "relationType": "belongsTo", "registerInclusionResolver": true}'
-        name: gruppearchived
-      - content: '{"sourceModel": "ArchivedRapport", "destinationModel": "Invoices", "foreignKeyName": "rapportId", "relationType": "hasMany", "registerInclusionResolver": true}'
-        name: invoicearchived
-      - content: '{"relationName": "SummerRateBefore", "sourceModel": "Trainer","destinationModel": "Product","foreignKeyName":"SummerRateBeforeId","relationType":"belongsTo","registerInclusionResolver":true}'
-        name: SummerRateBefore
-      - content: '{"relationName": "KUNDE", "customReferenceKeys":true, "sourceModel": "Kunde","customSourceModelKey":"bexioId","destinationModel":"Kunde","customTargetModelKey":"bexioId","throughModel":"KundeThrough","relationType":"hasManyThrough","sourceKeyOnThrough":"contactId","targetKeyOnThrough":"contactSubId","registerInclusionResolver":true}'
-        name: KUNDE
-      - content: '{"sourceModel": "Invoices", "destinationModel": "Rapport", "foreignKeyName": "relatedRapportId", "relationType": "belongsTo", "registerInclusionResolver": true}'
-        name: rapport
+      - name: trainer
+        spec:
+          destinationModel: Trainer
+          foreignKeyName: trainerId
+          registerInclusionResolver: true
+          relationName: trainer
+          relationType: belongsTo
+          sourceModel: Rapport
+      - name: platz
+        spec:
+          destinationModel: Platz
+          foreignKeyName: platzId
+          registerInclusionResolver: true
+          relationName: platz
+          relationType: belongsTo
+          sourceModel: Rapport
+      - name: kunde
+        spec:
+          destinationModel: Kunde
+          foreignKeyName: kundeId
+          registerInclusionResolver: true
+          relationName: kunde
+          relationType: belongsTo
+          sourceModel: Rapport
+      - name: gruppe
+        spec:
+          destinationModel: Gruppe
+          foreignKeyName: gruppeId
+          registerInclusionResolver: true
+          relationName: gruppe
+          relationType: belongsTo
+          sourceModel: Rapport
+      - name: invoice
+        spec:
+          destinationModel: Invoices
+          foreignKeyName: rapportId
+          registerInclusionResolver: true
+          relationName: invoice
+          relationType: hasMany
+          sourceModel: Rapport
+      - name: trainerarchived
+        spec:
+          destinationModel: Trainer
+          foreignKeyName: trainerId
+          registerInclusionResolver: true
+          relationName: trainerarchived
+          relationType: belongsTo
+          sourceModel: ArchivedRapport
+      - name: platzarchived
+        spec:
+          destinationModel: Platz
+          foreignKeyName: platzId
+          registerInclusionResolver: true
+          relationName: platzarchived
+          relationType: belongsTo
+          sourceModel: ArchivedRapport
+      - name: kundearchived
+        spec:
+          destinationModel: Kunde
+          foreignKeyName: kundeId
+          registerInclusionResolver: true
+          relationName: kundearchived
+          relationType: belongsTo
+          sourceModel: ArchivedRapport
+      - name: gruppearchived
+        spec:
+          destinationModel: Gruppe
+          foreignKeyName: gruppeId
+          registerInclusionResolver: true
+          relationName: gruppearchived
+          relationType: belongsTo
+          sourceModel: ArchivedRapport
+      - name: invoicearchived
+        spec:
+          destinationModel: Invoices
+          foreignKeyName: rapportId
+          registerInclusionResolver: true
+          relationName: invoicearchived
+          relationType: hasMany
+          sourceModel: ArchivedRapport
+      - name: SummerRateBefore
+        spec:
+          destinationModel: Product
+          foreignKeyName: SummerRateBeforeId
+          registerInclusionResolver: true
+          relationName: SummerRateBefore
+          relationType: belongsTo
+          sourceModel: Trainer
+      - name: KUNDE
+        content: '{"relationName": "KUNDE", "customReferenceKeys":true, "sourceModel": "Kunde","customSourceModelKey":"bexioId","destinationModel":"Kunde","customTargetModelKey":"bexioId","throughModel":"KundeThrough","relationType":"hasManyThrough","sourceKeyOnThrough":"contactId","targetKeyOnThrough":"contactSubId","registerInclusionResolver":true}'
+        # spec:
+        #   destinationModel: "Kunde"
+        #   registerInclusionResolver: true
+        #   customReferenceKeys: "true"
+        #   customSourceModelKey: "bexioId"
+        #   customTargetModelKey: "bexioId"
+        #   relationName: KUNDE
+        #   relationType: hasManyThrough
+        #   throughModel: "KundeThrough"
+        #   sourceModel: Kunde
+        #   sourceKeyOnThrough: "contactId"
+        #   targetKeyOnThrough: "contactSubId"
+      - name: rapport
+        spec:
+          destinationModel: Rapport
+          foreignKeyName: relatedRapportId
+          registerInclusionResolver: true
+          relationName: rapport
+          relationType: belongsTo
+          sourceModel: Invoices
+    fuzzysearch:
+      - name: kunde
+        content: 'jcs:{"fuzzy":true,"centralFuzzy":false,"datasource":"jcscherrer","appName":"Grpl","include":"kunde"}'
+        # spec:
+        #   fuzzy: true
+        #   centralFuzzy: false
+        #   datasource: "jcscherrer"
+        #   appName: "Grpl"
+        #   # include: "kundes"
     restcruds:
-      - content: '{"datasource":"jcscherrer"}'
-        name: jcscherrer
+      - name: "jcscherrer"
+        spec:
+          datasource: "jcscherrer"
     controllers: []
     prerelationpatches: []
     postpatches: []
