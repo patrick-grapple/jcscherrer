@@ -458,6 +458,7 @@ tasks:
     desc: Deploy the Helm chart to the Grapple cluster
     cmds:
       - |
+        echo "wait on grapi deployments"
         kubectl wait grapi -n {{.NS}} -l app.kubernetes.io/component=grapi --for condition=Synced
         kubectl wait gruim -n {{.NS}} -l app.kubernetes.io/component=gruim --for condition=Synced
         sleep 3
