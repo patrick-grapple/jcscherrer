@@ -38,11 +38,13 @@ spec:
                 configMapKeyRef:
                   name: "{{ .Release.Namespace }}-{{ .Release.Name }}-gruim-muim"
                   key: remoteentry
+          {{- if not index .Values.env "DEV" }}
             - name: SVELTE_APP_REMOTE_URL
               valueFrom:
                 configMapKeyRef:
                   name: "{{ .Release.Namespace }}-{{ .Release.Name }}-gruim-muim"
                   key: remoteentry
+          {{- end }}
           {{- if .Values.env }}
             {{- toYaml .Values.env | nindent 12 }}
           {{- end }}
@@ -72,11 +74,13 @@ spec:
                 configMapKeyRef:
                   name: "{{ .Release.Namespace }}-{{ .Release.Name }}-gruim-muim"
                   key: remoteentry
+          {{- if not index .Values.env "DEV" }}
             - name: SVELTE_APP_REMOTE_URL
               valueFrom:
                 configMapKeyRef:
                   name: "{{ .Release.Namespace }}-{{ .Release.Name }}-gruim-muim"
                   key: remoteentry
+          {{- end }}
           {{- if .Values.env }}
             {{- toYaml .Values.env | nindent 12 }}
           {{- end }}

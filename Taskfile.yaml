@@ -458,6 +458,8 @@ tasks:
     desc: Deploy the Helm chart to the Grapple cluster
     cmds:
       - |
+        kubectl wait grapi -n {{.NS}} -l app.kubernetes.io/component=grapi --for condition=Synced
+        kubectl wait gruim -n {{.NS}} -l app.kubernetes.io/component=gruim --for condition=Synced
         APPURL=$(kubectl get ing -n {{.NS}} -l app.kubernetes.io/layer=app -o jsonpath="{.items[0].spec.rules[0].host}")
         echo "APPURL: ${APPURL}"
         GRUIMURL=$(kubectl get ing -n {{.NS}} -l app.kubernetes.io/name=gruim -o jsonpath="{.items[0].spec.rules[0].host}")
