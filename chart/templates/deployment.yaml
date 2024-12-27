@@ -38,6 +38,7 @@ spec:
                 configMapKeyRef:
                   name: "{{ .Release.Namespace }}-{{ .Release.Name }}-gruim-muim"
                   key: remoteentry
+          {{- if .Values.env }}
           {{- range .Values.env | uniq }}
             {{- if eq .name "DEV" }}
               {{- if not .value }}
@@ -48,6 +49,7 @@ spec:
                   key: remoteentry
               {{- end }}
             {{- end }}
+          {{- end }}
           {{- end }}
           {{- if .Values.env }}
             {{- toYaml .Values.env | nindent 12 }}
