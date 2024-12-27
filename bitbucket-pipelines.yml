@@ -81,10 +81,9 @@ pipelines:
               - while ! kubectl get -n grpl-system configuration.pkg.crossplane.io grpl 2>/dev/null; do echo -n "."; sleep 2; done
               - sleep 5
               - kubectl wait -n grpl-system configuration.pkg.crossplane.io grpl --for condition=Healthy=True --timeout=300s
-              - task build-package-push-deploy STAGE=pr
-              - task update-bitbucket-pr STAGE=pr
-              - echo $BITBUCKET_PR_ID > pr_id.txt
-              - git add --force pr_id.txt && git commit -m "[skip ci] updated PR ID" && git push
+              - echo "build-package-push-deploy..." && task build-package-push-deploy STAGE=pr
+              - echo "update-bitbucket-pr..." && task update-bitbucket-pr STAGE=pr
+              - git pull && echo $BITBUCKET_PR_ID > pr_id.txt && git add --force pr_id.txt && git commit -m "[skip ci] updated PR ID" && git push
             services:
               - docker
 
