@@ -9,7 +9,7 @@ gras-deploy:
   enabled: true
   gras: {}
   grapi:
-    # beimagetag: "v0.130"
+    beimagetag: "0.2.9"
     automigrate: false
     discoveredrepos: true
     ingress: true
@@ -186,7 +186,7 @@ gras-deploy:
     prerelationpatches: []
     postpatches: []
   gruim:
-    # uiimagetag: "0.1.38"
+    uiimagetag: "0.2.9"
     ssl: true
     sslissuer: letsencrypt-grapple-demo
     style: '{"colors":{"primary":{"DEFAULT":"#004a99","fg":"#ffffff"},"accent":{"DEFAULT":"#fa7252","fg":"#ffffff"}}}'
