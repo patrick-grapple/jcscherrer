@@ -147,20 +147,53 @@ gras-deploy:
           relationName: SummerRateBefore
           relationType: belongsTo
           sourceModel: Trainer
+      # sadly multiple belongsTo relations still not fixed (waiting on PR to be merged):
+      # https://wolke7.atlassian.net/browse/LB4I-52
+      # also involves:
+      # git mv grapi/postpatches/addAdditionalRelationsToTrainer.sh grapi/postpatches/addAdditionalRelationsToTrainer.disabled
+      # git mv grapi/prerelationpatches/addAdditionalRelationsToTrainer.sh grapi/prerelationpatches/addAdditionalRelationsToTrainer.disabled
+      # - name: SummerRateAfter
+      #   spec:
+      #     destinationModel: Product
+      #     foreignKeyName: SummerRateAfterId
+      #     registerInclusionResolver: true
+      #     relationName: SummerRateAfter
+      #     relationType: belongsTo
+      #     sourceModel: Trainer
+      # - name: WinterRateBefore
+      #   spec:
+      #     destinationModel: Product
+      #     foreignKeyName: WinterRateBeforeId
+      #     registerInclusionResolver: true
+      #     relationName: WinterRateBefore
+      #     relationType: belongsTo
+      #     sourceModel: Trainer
+      # - name: WinterRateAfter
+      #   spec:
+      #     destinationModel: Product
+      #     foreignKeyName: WinterRateAfterId
+      #     registerInclusionResolver: true
+      #     relationName: WinterRateAfter
+      #     relationType: belongsTo
+      #     sourceModel: Trainer
       - name: KUNDE
         content: '{"relationName": "KUNDE", "customReferenceKeys":true, "sourceModel": "Kunde","customSourceModelKey":"bexioId","destinationModel":"Kunde","customTargetModelKey":"bexioId","throughModel":"KundeThrough","relationType":"hasManyThrough","sourceKeyOnThrough":"contactId","targetKeyOnThrough":"contactSubId","registerInclusionResolver":true}'
+        # spec doesn't work as customReferences (on source and target) are not yet implemented in grapi
         # spec:
-        #   destinationModel: "Kunde"
-        #   registerInclusionResolver: true
-        #   customReferenceKeys: "true"
-        #   customSourceModelKey: "bexioId"
-        #   customTargetModelKey: "bexioId"
         #   relationName: KUNDE
-        #   relationType: hasManyThrough
-        #   throughModel: "KundeThrough"
         #   sourceModel: Kunde
+        #   destinationModel: "Kunde"
+        #   throughModel: "KundeThrough"
+        #   relationType: hasManyThrough
         #   sourceKeyOnThrough: "contactId"
         #   targetKeyOnThrough: "contactSubId"
+        #   # # customReferences (on source and target) are not yet implemented in grapi
+        #   # customReferenceKeys: "true"
+        #   # customSourceModelKey: "bexioId"
+        #   # customTargetModelKey: "bexioId"
+        #   # # sourceModelPrimaryKey: "bexioId"
+        #   # # destinationModelPrimaryKey: "bexioId"
+        #   registerInclusionResolver: true
       - name: rapport
         spec:
           destinationModel: Rapport

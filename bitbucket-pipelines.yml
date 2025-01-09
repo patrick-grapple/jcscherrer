@@ -28,6 +28,17 @@ definitions:
         #   - docker run -i --env GRAPPLE_DNS=${stage}.${domain} --env CIVO_MASTER_IP=$(civo k8s show ${name}-${stage} -o custom -f "MasterIP") --env HOSTED_ZONE_ID=${HOSTED_ZONE_ID} grpl/dns-aws-route53-upsert:latest
         # services:
         #   - docker
+    - step: &clusteruat 
+        name: 'Prep Cluster'
+        script:
+          - pipe: atlassian/trigger-pipeline:5.8.1
+            variables:
+              REPOSITORY: grapple-cluster-deploy
+              BITBUCKET_ACCESS_TOKEN: ${grapple_clusters_accesss_token}
+              CUSTOM_PIPELINE_NAME: uat
+              REF_TYPE: branch
+              REF_NAME: main
+              WAIT: "true"
 
     - step: &externalsecrets
         name: 'Prep external secrets in Cluster'
@@ -90,7 +101,7 @@ pipelines:
   branches:
     develop:
       - parallel:
-        - step: *cluster
+        - step: *clusteruat
         - step:
             name: 'Cleanup PR deployments'
             script:
@@ -102,6 +113,7 @@ pipelines:
         - step: *externalsecrets
         - step:
             name: 'Deployment to UAT'
+            deployment: staging
             # caches:
             #   - docker
             script:
