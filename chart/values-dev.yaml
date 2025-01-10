@@ -9,8 +9,6 @@ env:
 # - name: DEV
 #   value: "true"
 
-dblocal:
-  enabled: true
 testdata:
   enabled: true
 
