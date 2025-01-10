@@ -1,26 +1,17 @@
-env:
-# the env for SVELTE_APP_REMOTE_URL must stay in first position due to the patching
-- name: SVELTE_APP_REMOTE_URL
-  value: ""
-  # value: "https://grpl-db-grpl-db-gruim.grpl-cli.grapple-demo.com"
-# the env for CONTAINER_NAME must stay in first position due to the patching
-- name: CONTAINER_NAME
-  value: "grpldbgrpldbgruim"
-# - name: DEV
-#   value: "true"
+# Default values for myapp for nop stage.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
 
 testdata:
   enabled: true
 
-gras-deploy: 
-  # gras: 
-  #   ssl: false
+gras-deploy:
   grapi:
-    ssl: false
-    autorestartgruim: false
+    ssl: true
+    autorestartgruim: true
     externalsecrets: []
     extraSecrets: 
-    - app-jcscherrer-conn-credential
+    - jcs-conn-credential
     datasources:
       - name: jcscherrer
         spec:
@@ -36,7 +27,8 @@ gras-deploy:
       - name: test
         spec:
           name: init-db
-          image: grpl/jcscherrer-data:data
+          image: grpl/jcs-pr-data:data
+          # image: grpl/jcs-pr-data:0.1.0.pr-11
           command:
             - bash
             - -c
@@ -51,16 +43,5 @@ gras-deploy:
               else 
                 mysql -h $(host) -P $(port) -u $(username) -p$(password) < ./db.sql; 
               fi
-
   gruim:
-    ssl: false
-
-
-ingress:
-  enabled: true
-  hosts:
-    - host: myapp
-      paths:
-        - path: /
-          pathType: ImplementationSpecific
-  tls: []
+    ssl: true
