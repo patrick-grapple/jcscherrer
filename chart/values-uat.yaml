@@ -1,0 +1,47 @@
+# Default values for myapp for nop stage.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+testdata:
+  enabled: true
+
+gras-deploy:
+  grapi:
+    ssl: true
+    autorestartgruim: false
+    externalsecrets: []
+    extraSecrets: 
+    - jcs-conn-credential
+    datasources:
+      - name: jcscherrer
+        spec:
+          mysql:
+            database: jcscherrer
+            host: $(host)
+            name: jcscherrer
+            password: $(password)
+            port: $(port)
+            url: ""
+            user: $(username)
+    initContainers:
+      - name: test
+        spec:
+          name: init-db
+          image: grpl/jcs-pr-data:data
+          # image: grpl/jcs-pr-data:0.1.0.pr-11
+          command:
+            - bash
+            - -c
+            - |
+              sleep 5;
+              while ! mysql -h $(host) -P $(port) -u $(username) -p$(password) -e "show databases;" 2>/dev/null; do 
+                echo -n .; 
+                sleep 2; 
+              done; 
+              if mysql -h $(host) -P $(port) -u $(username) -p$(password) -e "USE jcscherrer; SET @tablename := (select table_name from information_schema.tables where table_type = 'BASE TABLE' and table_schema = 'jcscherrer' limit 1); set @qry1:= concat('select * from ',@tablename,' limit 1'); prepare stmt from @qry1 ; execute stmt ;" ; then
+                echo "database already exists..."; 
+              else 
+                mysql -h $(host) -P $(port) -u $(username) -p$(password) < ./db.sql; 
+              fi
+  gruim:
+    ssl: true
