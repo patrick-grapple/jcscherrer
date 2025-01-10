@@ -51,3 +51,6 @@ gras-deploy:
               fi
   gruim:
     ssl: false
+
+ingress:
+  ssl: false

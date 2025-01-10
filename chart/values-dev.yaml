@@ -68,3 +68,6 @@ ingress:
         - path: /
           pathType: ImplementationSpecific
   tls: []
+
+ingress:
+  ssl: false
