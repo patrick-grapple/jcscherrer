@@ -33,8 +33,8 @@ gras-deploy:
       - name: test
         spec:
           name: init-db
-          image: grpl/jcs-pr-data:data
-          # image: grpl/jcs-pr-data:0.1.0.pr-11
+          image: grpl/jcs-uat-data:data
+          # image: grpl/jcs-uat-data:0.1.0.pr-11
           command:
             - bash
             - -c
