@@ -3,7 +3,7 @@
 # -----
 # You can specify a custom docker image from Docker Hub as your build environment.
 
-image: grpl/civo-build-container:v0.15
+image: grpl/civo-build-container:v0.16
 
 definitions: 
   steps:
