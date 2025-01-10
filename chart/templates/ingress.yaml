@@ -21,7 +21,9 @@ metadata:
     {{- include "myapp.labels" . | nindent 4 }}
   annotations:
     {{ $secret := (lookup "v1" "Secret" "grpl-system" "grsf-config" ) }}
+    {{- if .Values.ingress.ssl }}
     cert-manager.io/cluster-issuer: {{ index $secret.data "sslissuer" | b64dec }}
+    {{- end }}
   {{- with .Values.ingress.annotations }}
     {{- toYaml . | nindent 4 }}
   {{- end }}
@@ -40,9 +42,11 @@ spec:
     {{- end }}
     {{- end }}
     {{ $secret := (lookup "v1" "Secret" "grpl-system" "grsf-config" ) }}
+    {{- if .Values.ingress.ssl }}
     - hosts:
         - {{ .Release.Namespace }}-{{ $fullName }}.{{ index $secret.data "GRAPPLE_DNS" | b64dec }}
       secretName: {{ $fullName }}-tls
+    {{- end }}
   rules:
     {{- if .Values.ingress.tls }}
       {{- range .Values.ingress.hosts }}

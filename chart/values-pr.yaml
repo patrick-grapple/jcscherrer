@@ -5,6 +5,12 @@
 testdata:
   enabled: true
 
+env:
+  - name: SVELTE_APP_USERNAME
+    value: admin
+  - name: SVELTE_APP_PASSWORD
+    value: jcs-bo-admin
+
 gras-deploy:
   grapi:
     ssl: false
@@ -45,3 +51,6 @@ gras-deploy:
               fi
   gruim:
     ssl: false
+
+ingress:
+  ssl: false

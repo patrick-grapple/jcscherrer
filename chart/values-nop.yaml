@@ -44,3 +44,6 @@ gras-deploy:
               else 
                 mysql -h $(host) -P $(port) -u $(username) -p$(password) < ./db.sql; 
               fi
+
+ingress:
+  ssl: false

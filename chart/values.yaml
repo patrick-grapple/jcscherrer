@@ -1,11 +1,14 @@
 # Default values for myapp.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
 
 dblocal:
   enabled: true
 
-env: {}
+env:
+  - name: SVELTE_APP_USERNAME
+    value: admin
+  - name: SVELTE_APP_PASSWORD
+    value: password
+
 # configuration for grapple ApplicationSet (gras)
 gras-deploy:
   enabled: true
@@ -267,6 +270,7 @@ service:
   port: 80
 ingress:
   enabled: true
+  ssl: true
   className: ""
   annotations: {}
   # kubernetes.io/ingress.class: nginx

@@ -8,6 +8,10 @@ env:
   value: "grpldbgrpldbgruim"
 # - name: DEV
 #   value: "true"
+- name: SVELTE_APP_USERNAME
+  value: admin
+- name: SVELTE_APP_PASSWORD
+  value: jcs-bo-admin
 
 testdata:
   enabled: true
@@ -64,3 +68,6 @@ ingress:
         - path: /
           pathType: ImplementationSpecific
   tls: []
+
+ingress:
+  ssl: false
