@@ -8,6 +8,7 @@ env:
     value: admin
   - name: SVELTE_APP_PASSWORD
     value: password
+
 # configuration for grapple ApplicationSet (gras)
 gras-deploy:
   enabled: true
