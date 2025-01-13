@@ -53,7 +53,7 @@ definitions:
           - # prepare external secrets
           - echo -n "${AWS_ACCESS_KEY_ID}" > ./access-key
           - echo -n "${AWS_SECRET_ACCESS_KEY}" > ./secret-access-key
-          - kubectl -n grpl-system create secret generic awssm-secret-jcs --from-file=./access-key  --from-file=./secret-access-key 2>/dev/null || true
+          - kubectl -n grpl-system create secret generic awssm-secret-jcs --from-file=./access-key  --from-file=./secret-access-key
 
 pipelines:
   
