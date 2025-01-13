@@ -51,8 +51,8 @@ definitions:
           - sleep 5
           - kubectl wait -n grpl-system configuration.pkg.crossplane.io grpl --for condition=Healthy=True --timeout=300s
           - # prepare external secrets
-          - echo -n "${AWS_ACCESS_KEY_ID}" > ./access-key
-          - echo -n "${AWS_SECRET_ACCESS_KEY}" > ./secret-access-key
+          - echo -n "${AWS_ACCESS_KEY_ID_SECRETS}" > ./access-key
+          - echo -n "${AWS_SECRET_ACCESS_KEY_SECRETS}" > ./secret-access-key
           - kubectl -n grpl-system create secret generic awssm-secret-jcs --from-file=./access-key  --from-file=./secret-access-key
     - step: &externalsecretsuat
         name: 'Prep external secrets in Cluster'
@@ -66,8 +66,8 @@ definitions:
           - sleep 5
           - kubectl wait -n grpl-system configuration.pkg.crossplane.io grpl --for condition=Healthy=True --timeout=300s
           - # prepare external secrets
-          - echo -n "${AWS_ACCESS_KEY_ID}" > ./access-key
-          - echo -n "${AWS_SECRET_ACCESS_KEY}" > ./secret-access-key
+          - echo -n "${AWS_ACCESS_KEY_ID_SECRETS}" > ./access-key
+          - echo -n "${AWS_SECRET_ACCESS_KEY_SECRETS}" > ./secret-access-key
           - kubectl -n grpl-system create secret generic awssm-secret-jcs --from-file=./access-key  --from-file=./secret-access-key 2>/dev/null || true
 
 pipelines:
