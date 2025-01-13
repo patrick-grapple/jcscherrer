@@ -2,6 +2,9 @@
 
 dblocal:
   enabled: true
+externalsecrets:
+  enabled: true
+
 env:
   - name: SVELTE_APP_USERNAME
     value: admin
@@ -21,18 +24,18 @@ gras-deploy:
     ssl: true
     sslissuer: letsencrypt-grapple-demo
     externalsecrets:
-      - name: "classicmodelsas-auroramysql"
-        spec:
-          refreshInterval: 1h
-          secretStoreRef:
-            name: aws-secretstore
-            kind: ClusterSecretStore
-          target:
-            name: auroramysql
-            creationPolicy: Owner
-          dataFrom:
-            - extract:
-                key: cloud20x/rds/auroramysql
+      # - name: "classicmodelsas-auroramysql"
+      #   spec:
+      #     refreshInterval: 1h
+      #     secretStoreRef:
+      #       name: aws-secretstore
+      #       kind: ClusterSecretStore
+      #     target:
+      #       name: auroramysql
+      #       creationPolicy: Owner
+      #     dataFrom:
+      #       - extract:
+      #           key: cloud20x/rds/auroramysql
       - name: "jcscherrer-bexio"
         spec:
           refreshInterval: 1h

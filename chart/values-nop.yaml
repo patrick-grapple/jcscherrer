@@ -2,10 +2,18 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+env:
+  - name: SVELTE_APP_USERNAME
+    value: admin
+  - name: SVELTE_APP_PASSWORD
+    value: password
+
 dblocal:
   enabled: true
 testdata:
   enabled: true
+externalsecrets:
+  enabled: false
 
 gras-deploy:
   grapi:
