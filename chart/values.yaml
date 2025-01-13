@@ -7,9 +7,17 @@ externalsecrets:
 
 env:
   - name: SVELTE_APP_USERNAME
-    value: admin
+    # value: admin
+    valueFrom:
+      secretKeyRef:
+        name: jcs-admin-secret
+        key: SVELTE_APP_USERNAME
   - name: SVELTE_APP_PASSWORD
-    value: password
+    # value: password
+    valueFrom:
+      secretKeyRef:
+        name: jcs-admin-secret
+        key: SVELTE_APP_PASSWORD
 # configuration for grapple ApplicationSet (gras)
 gras-deploy:
   enabled: true
