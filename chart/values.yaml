@@ -14,6 +14,8 @@ gras-deploy:
   grapi:
     beimagetag: "0.2.9"
     automigrate: false
+    autoscaling:
+      minReplicas: 3
     discoveredrepos: true
     ingress: true
     ssl: true
@@ -223,13 +225,15 @@ gras-deploy:
     postpatches: []
   gruim:
     uiimagetag: "0.2.9"
+    autoscaling:
+      minReplicas: 3
     ssl: true
     sslissuer: letsencrypt-grapple-demo
     style: '{"colors":{"primary":{"DEFAULT":"#004a99","fg":"#ffffff"},"accent":{"DEFAULT":"#fa7252","fg":"#ffffff"}}}'
     config: '{"global":{"list-size":10,"field-properties":{"id":{"readonly":false}}, "weekStart": 1},"schema":{"Trainer":{"field-order":["id","vorname","name","email","aktiv","SummerRateBefore","SummerRateAfter","WinterRateBefore","WinterRateAfter","ClubRate","notizen","token"]},"Kunde":{"field-order":["id","bexioId","name","vorname","mail","ort","plz","strasse","land"]},"Gruppe":{"field-order":["id","gruppenname","beschreibung","gruppentyp","notizen"]},"Product":{"field-order":["id","bexioId","interncode","internname","interndescription","saleprice","taxid","articlegroupid"]},"Rapport":{"field-order":["id","datum","invoicedIn","trainer","kunde","gruppe","platz","startzeit","trainingsdauer","trainingType","nachholtermin","probetraining","archived","notizen"]}}}'
     additionalpackages: "svelte-fullcalendar@2.0.0-beta.0 @fullcalendar/common@5.10.1 @fullcalendar/core@5.10.1 @fullcalendar/daygrid@5.10.1 @fullcalendar/interaction@5.10.1 @fullcalendar/timegrid@5.10.1 dayjs@1.11.2"
     custommodules: []
-replicaCount: 1
+replicaCount: 3
 image:
   repository: grpl/grapple-template-pr
   pullPolicy: Always

@@ -12,8 +12,14 @@ gras-deploy:
   #   ssl: false
   grapi:
     ssl: false
+    autoscaling:
+      minReplicas: 1
+      maxReplicas: 1
   gruim:
     ssl: false
+    autoscaling:
+      minReplicas: 1
+      maxReplicas: 1
 
 
 ingress:
@@ -24,3 +30,5 @@ ingress:
         - path: /
           pathType: ImplementationSpecific
   tls: []
+
+replicaCount: 1

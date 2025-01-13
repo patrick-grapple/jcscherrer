@@ -15,6 +15,9 @@ gras-deploy:
   grapi:
     ssl: false
     autorestartgruim: false
+    autoscaling:
+      minReplicas: 1
+      maxReplicas: 1
     externalsecrets: []
     extraSecrets: 
     - jcs-conn-credential
@@ -51,6 +54,11 @@ gras-deploy:
               fi
   gruim:
     ssl: false
+    autoscaling:
+      minReplicas: 1
+      maxReplicas: 1
 
 ingress:
   ssl: false
+
+replicaCount: 1
