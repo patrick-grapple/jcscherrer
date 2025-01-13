@@ -1,3 +1,6 @@
+externalsecrets:
+  enabled: false
+
 env:
 - name: SVELTE_APP_REMOTE_URL
   value: "http://myapp-dev-ns99-myapp-gruim.test"
@@ -5,6 +8,10 @@ env:
   value: "myappdevns99myappgruim"
 # - name: DEV
 #   value: "true"
+- name: SVELTE_APP_USERNAME
+  value: admin
+- name: SVELTE_APP_PASSWORD
+  value: password
 
 
 gras-deploy: 
@@ -12,8 +19,14 @@ gras-deploy:
   #   ssl: false
   grapi:
     ssl: false
+    autoscaling:
+      minReplicas: 1
+      maxReplicas: 1
   gruim:
     ssl: false
+    autoscaling:
+      minReplicas: 1
+      maxReplicas: 1
 
 
 ingress:
@@ -24,3 +37,5 @@ ingress:
         - path: /
           pathType: ImplementationSpecific
   tls: []
+
+replicaCount: 1

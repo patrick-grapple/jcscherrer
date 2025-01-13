@@ -9,12 +9,14 @@ env:
   - name: SVELTE_APP_USERNAME
     value: admin
   - name: SVELTE_APP_PASSWORD
-    value: jcs-bo-admin
+    value: password
 
 gras-deploy:
   grapi:
     ssl: true
     autorestartgruim: true
+    autoscaling:
+      minReplicas: 2
     externalsecrets: []
     extraSecrets: 
     - jcs-conn-credential
@@ -51,3 +53,8 @@ gras-deploy:
               fi
   gruim:
     ssl: true
+    autoscaling:
+      minReplicas: 2
+
+
+replicaCount: 2

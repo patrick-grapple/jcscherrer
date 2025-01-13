@@ -1,10 +1,13 @@
+externalsecrets:
+  enabled: false
+
 env:
 - name: DEV
   value: "true"
 - name: SVELTE_APP_USERNAME
   value: admin
 - name: SVELTE_APP_PASSWORD
-  value: jcs-bo-admin
+  value: password
 
 
 gras-deploy: 
@@ -13,9 +16,15 @@ gras-deploy:
   grapi:
     ssl: false
     dev: true
+    autoscaling:
+      minReplicas: 1
+      maxReplicas: 1
   gruim:
     ssl: false
     dev: true
+    autoscaling:
+      minReplicas: 1
+      maxReplicas: 1
 
 
 ingress:
@@ -26,3 +35,5 @@ ingress:
         - path: /
           pathType: ImplementationSpecific
   tls: []
+
+replicaCount: 1

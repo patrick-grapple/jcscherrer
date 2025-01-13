@@ -4,17 +4,22 @@
 
 testdata:
   enabled: true
+externalsecrets:
+  enabled: false
 
 env:
   - name: SVELTE_APP_USERNAME
     value: admin
   - name: SVELTE_APP_PASSWORD
-    value: jcs-bo-admin
+    value: password
 
 gras-deploy:
   grapi:
     ssl: false
     autorestartgruim: false
+    autoscaling:
+      minReplicas: 1
+      maxReplicas: 1
     externalsecrets: []
     extraSecrets: 
     - jcs-conn-credential
@@ -51,6 +56,11 @@ gras-deploy:
               fi
   gruim:
     ssl: false
+    autoscaling:
+      minReplicas: 1
+      maxReplicas: 1
 
 ingress:
   ssl: false
+
+replicaCount: 1
