@@ -2,13 +2,11 @@
 
 dblocal:
   enabled: true
-
 env:
   - name: SVELTE_APP_USERNAME
     value: admin
   - name: SVELTE_APP_PASSWORD
     value: password
-
 # configuration for grapple ApplicationSet (gras)
 gras-deploy:
   enabled: true
@@ -305,3 +303,4 @@ autoscaling:
 nodeSelector: {}
 tolerations: []
 affinity: {}
+
