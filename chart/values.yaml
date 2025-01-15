@@ -109,7 +109,7 @@ gras-deploy:
                   ALTER TABLE `ArchivedRapport` DROP COLUMN `kundeId`;'
               else
                 echo "update-db-202501 already patched"
-              fi    datasources:
+              fi
       - name: jcscherrer
         spec:
           mysql:
@@ -145,15 +145,15 @@ gras-deploy:
           relationType: belongsTo
           sourceModel: Rapport
       - name: kunde
-        # content: '{"sourceModel": "Rapport","destinationModel": "Kunde","relationType": "referencesMany","keyFrom": "kundeIds","keyTo": "id","registerInclusionResolver": true}'
-        spec:
-          relationName: kunde
-          destinationModel: Kunde
-          sourceModel: Rapport
-          relationType: referencesMany
-          keyFrom: kundeIds
-          keyTo: id
-          registerInclusionResolver: true
+        content: '{"sourceModel": "Rapport","destinationModel": "Kunde","relationType": "referencesMany","keyFrom": "kundeIds","keyTo": "id","registerInclusionResolver": true}'
+        # spec:
+        #   relationName: kunde
+        #   destinationModel: Kunde
+        #   sourceModel: Rapport
+        #   relationType: referencesMany
+        #   keyFrom: kundeIds
+        #   keyTo: id
+        #   registerInclusionResolver: true
       - name: gruppe
         spec:
           destinationModel: Gruppe
@@ -187,15 +187,15 @@ gras-deploy:
           relationType: belongsTo
           sourceModel: ArchivedRapport
       - name: kundearchived
-        # content: '{"sourceModel": "ArchivedRapport","destinationModel": "Kunde","relationType": "referencesMany","keyFrom": "kundeIds","keyTo": "id","registerInclusionResolver": true}'
-        spec:
-          relationName: kundearchived
-          destinationModel: Kunde
-          sourceModel: ArchivedRapport
-          relationType: referencesMany
-          keyFrom: kundeIds
-          keyTo: id
-          registerInclusionResolver: true
+        content: '{"sourceModel": "ArchivedRapport","destinationModel": "Kunde","relationType": "referencesMany","keyFrom": "kundeIds","keyTo": "id","registerInclusionResolver": true}'
+        # spec:
+        #   relationName: kundearchived
+        #   destinationModel: Kunde
+        #   sourceModel: ArchivedRapport
+        #   relationType: referencesMany
+        #   keyFrom: kundeIds
+        #   keyTo: id
+        #   registerInclusionResolver: true
       - name: gruppearchived
         spec:
           destinationModel: Gruppe
