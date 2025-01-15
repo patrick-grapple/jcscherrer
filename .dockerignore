@@ -11,7 +11,7 @@ npm-debug.log
 .dockerignore
 Dockerfile
 Dockerfile.test
-chart
+chart/**
 README.md
 tags.json
 target

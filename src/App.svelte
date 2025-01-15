@@ -15,6 +15,7 @@
   import KundeThrough from "./routes/admin/kunde-through.svelte";
   import ArchivedRapports from "./routes/admin/archived-rapports.svelte";
   import InvoiceConfig from "./routes/admin/invoice-config.svelte";
+  import ArchivedTrainings from "./routes/admin/archived-trainings.svelte";
 
   // get authed from localstorage
   let authed: string | boolean | null = localStorage.getItem("auth");
@@ -50,6 +51,7 @@
           <Route path="kundeThrough" component={KundeThrough} />
           <Route path="archived-rapports" component={ArchivedRapports} />
           <Route path="invoice-config" component={InvoiceConfig} />
+          <Route path="archived-trainings" component={ArchivedTrainings} />
         </div>
       </div>
     {/if}

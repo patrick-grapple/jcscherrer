@@ -95,11 +95,21 @@ gras-deploy:
               echo "db available now..."
               if ! mysql -h ${host} -P ${port} -u ${username} -p${password} -e "use jcscherrer; SHOW COLUMNS FROM Rapport LIKE 'kundeIds'; " | grep -i kunde; then
                 echo "run the upgrade..."
-                mysql -h ${host} -P ${port} -u ${username} -p${password} -e 'use jcscherrer; ALTER TABLE `Rapport` ADD COLUMN `kundeIds` varchar(255) NULL AFTER `kundeId`; SET SQL_SAFE_UPDATES = 0; UPDATE Rapport AS a INNER JOIN Rapport AS b ON a.kundeId = b.kundeId SET a.kundeIds = concat("[",b.kundeId,"]"); SET SQL_SAFE_UPDATES = 1; ALTER TABLE `Rapport` DROP COLUMN `kundeId`;'
+                mysql -h ${host} -P ${port} -u ${username} -p${password} -e '
+                  use jcscherrer; 
+                  ALTER TABLE `Rapport` ADD COLUMN `kundeIds` varchar(255) NULL AFTER `kundeId`; 
+                  SET SQL_SAFE_UPDATES = 0; 
+                  UPDATE Rapport AS a INNER JOIN Rapport AS b ON a.kundeId = b.kundeId SET a.kundeIds = concat("[",b.kundeId,"]"); 
+                  SET SQL_SAFE_UPDATES = 1; 
+                  ALTER TABLE `Rapport` DROP COLUMN `kundeId`;
+                  ALTER TABLE `ArchivedRapport` ADD COLUMN `kundeIds` varchar(255) NULL AFTER `kundeId`; 
+                  SET SQL_SAFE_UPDATES = 0; 
+                  UPDATE ArchivedRapport AS a INNER JOIN ArchivedRapport AS b ON a.kundeId = b.kundeId SET a.kundeIds = concat("[",b.kundeId,"]"); 
+                  SET SQL_SAFE_UPDATES = 1; 
+                  ALTER TABLE `ArchivedRapport` DROP COLUMN `kundeId`;'
               else
                 echo "update-db-202501 already patched"
-              fi
-    datasources:
+              fi    datasources:
       - name: jcscherrer
         spec:
           mysql:
@@ -135,13 +145,15 @@ gras-deploy:
           relationType: belongsTo
           sourceModel: Rapport
       - name: kunde
+        # content: '{"sourceModel": "Rapport","destinationModel": "Kunde","relationType": "referencesMany","keyFrom": "kundeIds","keyTo": "id","registerInclusionResolver": true}'
         spec:
-          destinationModel: Kunde
-          foreignKeyName: kundeId
-          registerInclusionResolver: true
           relationName: kunde
-          relationType: belongsTo
+          destinationModel: Kunde
           sourceModel: Rapport
+          relationType: referencesMany
+          keyFrom: kundeIds
+          keyTo: id
+          registerInclusionResolver: true
       - name: gruppe
         spec:
           destinationModel: Gruppe
@@ -175,13 +187,15 @@ gras-deploy:
           relationType: belongsTo
           sourceModel: ArchivedRapport
       - name: kundearchived
+        # content: '{"sourceModel": "ArchivedRapport","destinationModel": "Kunde","relationType": "referencesMany","keyFrom": "kundeIds","keyTo": "id","registerInclusionResolver": true}'
         spec:
-          destinationModel: Kunde
-          foreignKeyName: kundeId
-          registerInclusionResolver: true
           relationName: kundearchived
-          relationType: belongsTo
+          destinationModel: Kunde
           sourceModel: ArchivedRapport
+          relationType: referencesMany
+          keyFrom: kundeIds
+          keyTo: id
+          registerInclusionResolver: true
       - name: gruppearchived
         spec:
           destinationModel: Gruppe
