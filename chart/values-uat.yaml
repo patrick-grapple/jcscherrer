@@ -13,8 +13,6 @@ testdata:
 
 gras-deploy:
   grapi:
-    ssl: true
-    autorestartgruim: true
     autoscaling:
       minReplicas: 2
     externalsecrets: []
@@ -52,7 +50,6 @@ gras-deploy:
                 mysql -h $(host) -P $(port) -u $(username) -p$(password) < ./db.sql; 
               fi
   gruim:
-    ssl: true
     autoscaling:
       minReplicas: 2
 

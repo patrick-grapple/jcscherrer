@@ -25,6 +25,7 @@ gras-deploy:
   grapi:
     beimagetag: "0.2.9"
     automigrate: false
+    autorestartgruim: true
     autoscaling:
       minReplicas: 3
     discoveredrepos: true
