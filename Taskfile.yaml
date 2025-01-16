@@ -179,9 +179,10 @@ tasks:
       - |
         FOLDER={{.GRAPI_INJECTION_FOLDER}}
         BASE64=$(if [[ "$OSTYPE" == "darwin"* ]]; then echo "base64"; else echo "base64 -w 0"; fi)
+        FINDFILES=$(if [[ "$OSTYPE" == "msys"* ]]; then find ${FOLDER} -name '\*.sh' -or -name '\*.bash'; else find ${FOLDER} -name '*.sh' -or -name '*.bash'; fi)
         BASE="{{.BASE}}"  # Ensuring BASE is enclosed in quotes for full path reference
         if yq -e ".${BASE}.${FOLDER}" {{.VALUES_YAML_PATH}} >/dev/null; then
-          for file_path in $(find ${FOLDER} -name "*.sh" -or -name "*.bash"); do  
+          for file_path in $(${FINDFILES}); do  
             group_name=$(echo ${file_path} | sed "s,${FOLDER}/,,g" | \
               cut -d/ -f1)
             file_name=$(echo ${file_path} | sed "s,${FOLDER}/,,g" | \
@@ -191,7 +192,7 @@ tasks:
               "s,.${group_name}.${file_extension},,g" | sed \
               "s,.${group_name::${#group_name}-1}.${file_extension},,g" | \
               sed "s,.${file_extension},,g")
-            base64_content=$(cat ${file_path} | ${BASE64})  # Base64 on single line
+            base64_content=$(cat ${file_path} | tr -d '\r' | ${BASE64})  # Base64 on single line
             if [ "${file_name}" = "index.ts" ]; then continue; fi
             echo "patching: ${FOLDER} - ${group_name} - ${injection_name} - \
               ${file_name}"
@@ -269,10 +270,12 @@ tasks:
       - |
         FOLDER={{.GRAPI_INJECTION_FOLDER}}
         BASE64=$(if [[ "$OSTYPE" == "darwin"* ]]; then echo "base64"; else echo "base64 -w 0"; fi)
+        FINDFILES="$(if [[ "$OSTYPE" == "msys"* ]]; then find ${FOLDER} -name '\*.ts' -or -name '\*.sh' -or -name '\*.bash'; else find ${FOLDER} -name '*.ts' -or -name '*.sh' -or -name '*.bash'; fi)"
         BASE="{{.BASE}}"  # Ensuring BASE is enclosed in quotes for full path reference
         if yq -e ".${BASE}.${FOLDER}" {{.VALUES_YAML_PATH}} >/dev/null; then
-          for file_path in $(find ${FOLDER} -name "*.ts" -or \
-            -name "*.sh" -or -name "*.bash"); do  
+          # echo "${FINDFILES}"
+          for file_path in $(echo "${FINDFILES}"); do
+            echo $file_path
             group_name=$(echo ${file_path} | sed "s,${FOLDER}/,,g" | \
               cut -d/ -f1)
             file_name=$(echo ${file_path} | sed "s,${FOLDER}/,,g" | \
@@ -282,7 +285,7 @@ tasks:
               "s,.${group_name}.${file_extension},,g" | sed \
               "s,.${group_name::${#group_name}-1}.${file_extension},,g" | \
               sed "s,.${file_extension},,g")
-            base64_content=$(cat ${file_path} | ${BASE64})  # Base64 on single line
+            base64_content=$(cat ${file_path} | tr -d '\r' | ${BASE64})  # Base64 on single line
             if [ "${file_name}" = "index.ts" ]; then continue; fi
             echo "patching: ${FOLDER} - ${group_name} - ${injection_name} - \
               ${file_name}"
@@ -303,9 +306,11 @@ tasks:
         BASE64=$(if [[ "$OSTYPE" == "darwin"* ]]; then echo "base64"; else echo "base64 -w 0"; fi)
         BASE="{{.BASE}}"  # Ensuring BASE is enclosed in quotes for full path reference
         cm="custommodules"
+        FINDFILES=$(if [[ "$OSTYPE" == "msys"* ]]; then find ${FOLDER}/${cm} -name '\*.svelte'; else find ${FOLDER}/${cm} -name '*.svelte'; fi)
         if yq -e ".${BASE}.${FOLDER}" {{.VALUES_YAML_PATH}} >/dev/null; then
           yq -i "del(.${BASE}.${FOLDER}.${cm}[])" {{.VALUES_YAML_PATH}}
-          for file_path in $(find ${FOLDER}/${cm} -name "*.svelte"); do 
+          # echo "${FINDFILES}"
+          for file_path in $(echo "${FINDFILES}"); do
             group_name=$(echo ${file_path} | sed "s,${FOLDER}/,,g" | \
               cut -d/ -f1)
             file_name=$(echo ${file_path} | sed "s,${FOLDER}/,,g" | \
@@ -316,7 +321,7 @@ tasks:
               "s,.${group_name::${#group_name}-1}.${file_extension},,g" | \
               sed "s,.${file_extension},,g")
             injection_name=$(echo ${file_name} | sed "s,.${file_extension},,g")
-            base64_content=$(cat ${file_path} | ${BASE64})  # Base64 on single line
+            base64_content=$(cat ${file_path} | tr -d '\r' | ${BASE64})  # Base64 on single line
             if [ "${file_name}" = "index.ts" ]; then continue; fi
             echo "patching: ${FOLDER} - ${cm} - ${injection_name} - \
               ${file_name}"
