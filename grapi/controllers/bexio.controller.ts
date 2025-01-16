@@ -118,7 +118,9 @@ export class BexioController {
     @repository.getter("InvoiceGenerationConfigRepository")
     protected InvoiceGenerationConfig: () => Promise<any>,
     @repository.getter("RapportRepository")
-    protected Rapport: () => Promise<any>
+    protected Rapport: () => Promise<any>,
+    @repository.getter("ProductRepository")
+    protected Product: () => Promise<any>
   ) { }
 
   // Map to `post /create-bexio-invoice`
@@ -284,12 +286,44 @@ export class BexioController {
         ClubRate: [],
       };
 
+      // Group rapports by training session to determine group size
+      const rapportsBySession: { [key: string]: RapportType[] } = {};
+      invoices.forEach(rapport => {
+        const sessionKey = `${rapport.datum}-${rapport.startzeit}-${rapport.trainerId}`;
+        if (!rapportsBySession[sessionKey]) {
+          rapportsBySession[sessionKey] = [];
+        }
+        rapportsBySession[sessionKey].push(rapport);
+      });
+
       invoices.map((rapport) => {
-        // if the platz is club(id=2) then the price should be clubRate.
+        // Handle special training types and group trainings
+        if (rapport.trainingType === "gruppe" ||
+          rapport.trainingType === "mannschaft" ||
+          rapport.trainingType === "mannschaft_platz" ||
+          rapport.trainingType === "aufschlag") {
+
+          const sessionKey = `${rapport.datum}-${rapport.startzeit}-${rapport.trainerId}`;
+          const groupSize = rapportsBySession[sessionKey].length;
+          const isFixplatz = rapport.platzId === 2;
+
+          // Get the appropriate product code
+          const productCode = getGroupProductCode(rapport.trainingType, groupSize, rapport.kunde, isFixplatz, isSummer);
+
+          // Add to a new group for this product code if it doesn't exist
+          if (!groupedInvoices[productCode]) {
+            groupedInvoices[productCode] = [];
+          }
+          groupedInvoices[productCode].push(rapport);
+          return;
+        }
+
+        // Handle regular private lessons as before
         if (rapport.platzId === 2) {
           groupedInvoices.ClubRate.push(rapport);
           return;
         }
+
         // rapport.startzeit is in format 13:00:00
         let rapportTimeStart = dayjs()
           .hour(rapport.startzeit.split(":")[0])
@@ -421,6 +455,87 @@ export class BexioController {
       return parseInt(hours) + parseInt(minutes) / 60;
     };
 
+    const isAdult = (kunde: KundeType) => {
+      if (!kunde.geburtstag) return true;
+      const age = dayjs().diff(dayjs(kunde.geburtstag), 'year');
+      return age >= 18;
+    };
+
+    const getProductInfo = async (productCode: string) => {
+      const Product = await this.Product();
+      const product = await Product.findOne({
+        where: {
+          bexioId: productCode
+        }
+      });
+
+      if (!product) {
+        throw new Error(`Product with code ${productCode} not found`);
+      }
+
+      return product;
+    };
+
+    const getGroupProductCode = (trainingType: string, groupSize: number, kunde: KundeType, isFixplatz: boolean, isSummer: boolean) => {
+      // Handle fixplatz case first
+      if (isFixplatz) {
+        switch (groupSize) {
+          case 2: return "2060";
+          case 3: return "2070";
+          case 4: return "2080";
+          default: return "2080"; // Default to group of 4 for larger groups
+        }
+      }
+
+
+      if (trainingType === "mannschaft") {
+        return "2090"; // Mannschaftstraining ohne Platzmiete
+      }
+      if (trainingType === "mannschaft_platz") {
+        return "2095"; // Mannschaftstraining inkl. Platzmiete
+      }
+      if (trainingType === "aufschlag") {
+        return groupSize >= 5 ? "4510" : "4500";
+      }
+
+      // Handle regular group trainings
+      const isAdultParticipant = isAdult(kunde);
+
+      if (isSummer) {
+        if (isAdultParticipant) {
+          switch (groupSize) {
+            case 2: return "2520";
+            case 3: return "2530";
+            case 4: return "2540";
+            default: return "2550"; // 5 or 6
+          }
+        } else {
+          switch (groupSize) {
+            case 2: return "3520";
+            case 3: return "3530";
+            case 4: return "3540";
+            default: return "3540"; // Default to group of 4 for larger groups
+          }
+        }
+      } else {
+        if (isAdultParticipant) {
+          switch (groupSize) {
+            case 2: return "2020";
+            case 3: return "2030";
+            case 4: return "2040";
+            default: return "2050"; // 5 or 6
+          }
+        } else {
+          switch (groupSize) {
+            case 2: return "3020";
+            case 3: return "3030";
+            case 4: return "3040";
+            default: return "3040"; // Default to group of 4 for larger groups
+          }
+        }
+      }
+    };
+
     const formatDuration = (duration) => {
       console.log({ duration });
       let hours = duration.split(":")[0];
@@ -493,8 +608,14 @@ export class BexioController {
         let trainerName = rapportsGroupedByTrainer[trainer][0].trainer.name;
 
         for (let productType in rapportsGroupedByTime) {
-          let product =
-            rapportsGroupedByTime[productType][0].trainer[productType];
+          let product;
+          if (productType.match(/^\d{4}$/)) {
+            // If productType is a 4-digit code, it's one of our special product codes
+            product = await getProductInfo(productType);
+          } else {
+            // Otherwise use the existing trainer rate logic
+            product = rapportsGroupedByTime[productType][0].trainer[productType];
+          }
 
           let positionText = `${product.internname} <br/>`;
 
@@ -544,8 +665,14 @@ export class BexioController {
         let trainerName = rapportsGroupedByTrainer[trainer][0].trainer.name;
 
         for (let productType in rapportsGroupedByTime) {
-          let product =
-            rapportsGroupedByTime[productType][0].trainer[productType];
+          let product;
+          if (productType.match(/^\d{4}$/)) {
+            // If productType is a 4-digit code, it's one of our special product codes
+            product = await getProductInfo(productType);
+          } else {
+            // Otherwise use the existing trainer rate logic
+            product = rapportsGroupedByTime[productType][0].trainer[productType];
+          }
 
           let positionText = `${product.internname} <br/>`;
 

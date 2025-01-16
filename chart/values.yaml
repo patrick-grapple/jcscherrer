@@ -4,7 +4,8 @@ dblocal:
   enabled: true
 externalsecrets:
   enabled: true
-
+customersync:
+  enabled: true
 env:
   - name: SVELTE_APP_USERNAME
     # value: admin
@@ -25,6 +26,7 @@ gras-deploy:
   grapi:
     beimagetag: "0.2.9"
     automigrate: false
+    autorestartgruim: true
     autoscaling:
       minReplicas: 3
     discoveredrepos: true
@@ -56,7 +58,49 @@ gras-deploy:
           dataFrom:
             - extract:
                 key: cloud20x/jcscherrer/bexionop
-    datasources:
+    initContainers:
+      - name: wait-for-db
+        spec:
+          name: wait-for-db
+          image: grpl/jcscherrer-data:data
+          command:
+            - bash
+            - -c
+            - |
+              sleep 5;
+              while ! mysql -h $(host) -P $(port) -u $(username) -p$(password) -e "show databases;" 2>/dev/null; do
+                echo -n .;
+                sleep 2;
+              done;
+              if mysql -h $(host) -P $(port) -u $(username) -p$(password) -e "USE jcscherrer; SET @tablename := (select table_name from information_schema.tables where table_type = 'BASE TABLE' and table_schema = 'jcscherrer' limit 1); set @qry1:= concat('select * from ',@tablename,' limit 1'); prepare stmt from @qry1 ; execute stmt ;" ; then
+                echo "database already exists..."
+              else
+                echo "wait for database"
+                while ! mysql -h $(host) -P $(port) -u $(username) -p$(password) -e "USE jcscherrer; SET @tablename := (select table_name from information_schema.tables where table_type = 'BASE TABLE' and table_schema = 'jcscherrer' limit 1); set @qry1:= concat('select * from ',@tablename,' limit 1'); prepare stmt from @qry1 ; execute stmt ;"; do
+                  echo -n .;
+                  sleep 2;
+                done;
+              fi
+      - name: update-db-202501
+        spec:
+          name: update-db-202501
+          image: mysql
+          command:
+            - bash
+            - -c
+            - |
+              sleep 5;
+              while ! mysql -h $(host) -P $(port) -u $(username) -p$(password) -e "show databases;" 2>/dev/null; do
+                echo -n .;
+                sleep 2;
+              done;
+              echo "db available now..."
+              if ! mysql -h ${host} -P ${port} -u ${username} -p${password} -e "use jcscherrer; SHOW COLUMNS FROM Rapport LIKE 'kundeIds'; " | grep -i kunde; then
+                echo "run the upgrade..."
+                mysql -h ${host} -P ${port} -u ${username} -p${password} -e 'use jcscherrer; ALTER TABLE `Rapport` ADD COLUMN `kundeIds` varchar(255) NULL AFTER `kundeId`; SET SQL_SAFE_UPDATES = 0; UPDATE Rapport AS a INNER JOIN Rapport AS b ON a.kundeId = b.kundeId SET a.kundeIds = concat("[",b.kundeId,"]"); SET SQL_SAFE_UPDATES = 1; ALTER TABLE `Rapport` DROP COLUMN `kundeId`; ALTER TABLE `ArchivedRapport` ADD COLUMN `kundeIds` varchar(255) NULL AFTER `kundeId`; SET SQL_SAFE_UPDATES = 0; UPDATE ArchivedRapport AS a INNER JOIN ArchivedRapport AS b ON a.kundeId = b.kundeId SET a.kundeIds = concat("[",b.kundeId,"]"); SET SQL_SAFE_UPDATES = 1; ALTER TABLE `ArchivedRapport` DROP COLUMN `kundeId`;'
+              else
+                echo "update-db-202501 already patched"
+              fi
       - name: jcscherrer
         spec:
           mysql:
@@ -92,13 +136,15 @@ gras-deploy:
           relationType: belongsTo
           sourceModel: Rapport
       - name: kunde
-        spec:
-          destinationModel: Kunde
-          foreignKeyName: kundeId
-          registerInclusionResolver: true
-          relationName: kunde
-          relationType: belongsTo
-          sourceModel: Rapport
+        content: '{"sourceModel": "Rapport","destinationModel": "Kunde","relationType": "referencesMany","keyFrom": "kundeIds","keyTo": "id","registerInclusionResolver": true}'
+        # spec:
+        #   relationName: kunde
+        #   destinationModel: Kunde
+        #   sourceModel: Rapport
+        #   relationType: referencesMany
+        #   keyFrom: kundeIds
+        #   keyTo: id
+        #   registerInclusionResolver: true
       - name: gruppe
         spec:
           destinationModel: Gruppe
@@ -132,13 +178,15 @@ gras-deploy:
           relationType: belongsTo
           sourceModel: ArchivedRapport
       - name: kundearchived
-        spec:
-          destinationModel: Kunde
-          foreignKeyName: kundeId
-          registerInclusionResolver: true
-          relationName: kundearchived
-          relationType: belongsTo
-          sourceModel: ArchivedRapport
+        content: '{"sourceModel": "ArchivedRapport","destinationModel": "Kunde","relationType": "referencesMany","keyFrom": "kundeIds","keyTo": "id","registerInclusionResolver": true}'
+        # spec:
+        #   relationName: kundearchived
+        #   destinationModel: Kunde
+        #   sourceModel: ArchivedRapport
+        #   relationType: referencesMany
+        #   keyFrom: kundeIds
+        #   keyTo: id
+        #   registerInclusionResolver: true
       - name: gruppearchived
         spec:
           destinationModel: Gruppe
@@ -318,4 +366,3 @@ autoscaling:
 nodeSelector: {}
 tolerations: []
 affinity: {}
-

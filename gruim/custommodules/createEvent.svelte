@@ -13,19 +13,56 @@
   export let selectedStartTime: string = dayjs().format("HH:mm");
   export let selectedDuration: string = "01:00:00";
 
+  export let formData: any = {};
+
   let loading = false;
 
   onMount(async () => {
     loading = true;
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    let kundeInput = document
-      .querySelector('input[placeholder="kunde"]')
-      ?.closest(".svelte-select");
+    let kundeIds = document.querySelector('div[placeholder="kundes"]');
 
-    let evt = new PointerEvent("pointerup");
-    kundeInput?.dispatchEvent(evt);
+    kundeIds?.click();
+
+    if (kundeIds) {
+      // Create a MutationObserver instance
+      const observer = new MutationObserver((mutationsList) => {
+        mutationsList.forEach((mutation) => {
+          if (mutation.type === "childList") {
+            mutation.addedNodes.forEach((node) => {
+              console.log("Child added:", node);
+            });
+            mutation.removedNodes.forEach((node) => {
+              console.log("Child removed:", node);
+            });
+          }
+          if (mutation.type === "characterData") {
+            // check formdata.kundeIds.length and if more than 1, set trainingType to gruppe and if it is 1 and the previous value was gruppe, set it to private
+            if (formData.kundeIds.length > 1) {
+              formData.trainingType = "gruppe";
+            } else if (
+              formData.kundeIds.length === 1 &&
+              formData.trainingType === "gruppe"
+            ) {
+              formData.trainingType = "private";
+            }
+          }
+        });
+      });
+
+      // Set the observer options
+      const observerConfig = {
+        childList: true, // Listen for child nodes added or removed
+        subtree: true, // Observe all descendants of the target
+        characterData: true, // Listen for text content changes in text nodes
+      };
+
+      // Start observing
+      observer.observe(kundeIds, observerConfig);
+    }
+
     loading = false;
   });
 
@@ -93,7 +130,7 @@
       ],
       "relational-fields": [
         {
-          name: "kunde",
+          name: "kundeIds",
           type: "FAVORITE",
           editable: true,
           useFuzzySearch: true,
@@ -146,6 +183,37 @@
               },
             },
           ],
+      "dropdown-fields": [
+        {
+          name: "trainingType",
+          default: {
+            label: "private",
+            value: "private",
+          },
+          options: [
+            {
+              label: "private",
+              value: "private",
+            },
+            {
+              label: "gruppe (spontan)",
+              value: "gruppe",
+            },
+            {
+              label: "Mannschaftstraining (ohne Platzmiete)",
+              value: "mannschaft",
+            },
+            {
+              label: "Mannschaftstraining (inkl. Platzmiete)",
+              value: "mannschaft_platz",
+            },
+            {
+              label: "Aufschlagtraining",
+              value: "aufschlag",
+            },
+          ],
+        },
+      ],
     },
   };
 </script>
@@ -192,6 +260,6 @@
   </div>
 
   <div class="overflow-auto max-h-[70%]">
-    <CreateEvent {schema} onSuccess={closePopup} />
+    <CreateEvent {schema} onSuccess={closePopup} bind:formData />
   </div>
 </div>

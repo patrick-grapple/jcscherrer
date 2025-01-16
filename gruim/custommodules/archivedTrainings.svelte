@@ -36,7 +36,6 @@
   let events: { start: string }[] = [];
   let selectedRapports: any = [];
   let selectedDate: string = dayjs().format();
-  let selectedStartTime: string = "";
   let rapportToUpdateId: string = "";
 
   let options: CalendarOptions = {
@@ -46,7 +45,7 @@
     height: "100%",
   };
 
-  export let schema: any = {};
+  //   export let schema: any = {};
 
   // change showCal value based on window size and rerender calendar
   $: if (innerWidth > 768) {
@@ -78,16 +77,16 @@
 
   let selectedTrainer: any = "";
 
-  let URL = `${process.env.SVELTE_APP_REMOTE_URL}/api/rapports?filter={"include":["trainer","platz","kundes","gruppe"]}`;
+  let URL = `${process.env.SVELTE_APP_REMOTE_URL}/api/archived-rapports?filter={"include":["trainer","platz","kundes","gruppe"]}`;
 
   let updateRapports = async () => {
     // get the list of rapports for the selected trainer
     localStorage.setItem("trainer", JSON.stringify(selectedTrainer));
 
     if (selectedTrainer?.value) {
-      URL = `${process.env.SVELTE_APP_REMOTE_URL}/api/rapports?filter={"include":["trainer","platz","kundes","gruppe"],"where":{"trainerId":${selectedTrainer.value}}}`;
+      URL = `${process.env.SVELTE_APP_REMOTE_URL}/api/archived-rapports?filter={"include":["trainer","platz","kundes","gruppe"],"where":{"trainerId":${selectedTrainer.value}}}`;
     } else {
-      URL = `${process.env.SVELTE_APP_REMOTE_URL}/api/rapports?filter={"include":["trainer","platz","kundes","gruppe"]}`;
+      URL = `${process.env.SVELTE_APP_REMOTE_URL}/api/archived-rapports?filter={"include":["trainer","platz","kundes","gruppe"]}`;
     }
 
     let rapports = await fetch(URL);
@@ -125,9 +124,9 @@
     } = JSON.parse(localStorage.getItem("trainer") || "{}");
 
     if (savedTrainer?.value) {
-      URL = `${process.env.SVELTE_APP_REMOTE_URL}/api/rapports?filter={"include":["trainer","platz","kundes","gruppe"],"where":{"trainerId":${savedTrainer.value}}}`;
+      URL = `${process.env.SVELTE_APP_REMOTE_URL}/api/archived-rapports?filter={"include":["trainer","platz","kundes","gruppe"],"where":{"trainerId":${savedTrainer.value}}}`;
     } else {
-      URL = `${process.env.SVELTE_APP_REMOTE_URL}/api/rapports?filter={"include":["trainer","platz","kundes","gruppe"]}`;
+      URL = `${process.env.SVELTE_APP_REMOTE_URL}/api/archived-rapports?filter={"include":["trainer","platz","kundes","gruppe"]}`;
     }
 
     let rapports = await fetch(URL);
@@ -151,12 +150,12 @@
     options = {
       ...options,
       events: events,
-      eventClick: async function (info: any) {
-        selectedDate = dayjs(info.event.start).format("YYYY-MM-DD");
-        await updateRapports();
-        // hide the calendar
-        showCal = false;
-      },
+      //   eventClick: async function (info: any) {
+      //     selectedDate = dayjs(info.event.start).format("YYYY-MM-DD");
+      //     await updateRapports();
+      //     // hide the calendar
+      //     showCal = false;
+      //   },
       dateClick: function (info: any) {
         selectedDate = dayjs(info.dateStr).format("YYYY-MM-DD");
         showCal = false;
@@ -321,7 +320,7 @@
 
 <svelte:window bind:innerWidth />
 
-{#if closeConfirmation && (showCreateForm || showEditForm || showViewFrom)}
+<!-- {#if closeConfirmation && (showCreateForm || showEditForm || showViewFrom)}
   <SimpleDismissModal
     on:close={() => (closeConfirmation = false)}
     on:secondary={() => (closeConfirmation = false)}
@@ -333,29 +332,8 @@
       unsavedChanges = false;
     }}
   />
-{/if}
-
-{#if showCreateForm}
-  <div
-    class="fixed w-full h-screen z-10 flex justify-center items-center inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
-  >
-    <CreateEvent
-      {schema}
-      {selectedDate}
-      {selectedStartTime}
-      {selectedDuration}
-      closePopup={() => {
-        // if unsaved changes, show confirmation modal
-        if (unsavedChanges) {
-          closeConfirmation = true;
-        } else {
-          showCreateForm = false;
-        }
-      }}
-    />
-  </div>
-{/if}
-
+{/if} -->
+<!-- 
 {#if showEditForm || showViewFrom}
   <div
     class="fixed w-full h-screen z-10 flex justify-center items-center inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
@@ -377,7 +355,7 @@
       isViewOnly={showViewFrom}
     />
   </div>
-{/if}
+{/if} -->
 
 <div class="grid grid-cols-2 p-4 bg-primary-50">
   <div>
@@ -388,32 +366,6 @@
         on:updateTrainer={updateRapports}
       />
     {/if}
-  </div>
-
-  <div class=" flex justify-end">
-    <button
-      class="rounded-full !bg-primary-500 hover:!bg-primary-600 w-8 h-8 flex justify-center items-center"
-      on:click={() => {
-        showCreateForm = !showCreateForm;
-      }}
-    >
-      <svg
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="white"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        ><line x1="12" y1="5" x2="12" y2="19" /><line
-          x1="5"
-          y1="12"
-          x2="19"
-          y2="12"
-        /></svg
-      >
-    </button>
   </div>
 </div>
 
@@ -562,23 +514,23 @@
         bind:selectedDate
         bind:selectedTrainer
         on:eventClicked={async (info) => {
-          const currentDate =
-            info.detail.event._def.extendedProps.rapport.datum;
-          const trainingDate = new Date(currentDate);
-          const isEditable = await checkIfTrainingEditable(
-            trainingDate,
-            isAdmin,
-            !!info.detail.event._def.extendedProps.rapport.archived,
-            !!info.detail.event._def.extendedProps.rapport.invoicedIn
-          );
-          if (isEditable) {
-            showEditForm = true;
-          } else {
-            showViewFrom = true;
-          }
-
-          // @ts-ignore
-          rapportToUpdateId = info.detail.event._def.extendedProps.rapport.id;
+          console.log(info);
+          //   const currentDate =
+          //     info.detail.event._def.extendedProps.rapport.datum;
+          //   const trainingDate = new Date(currentDate);
+          //   const isEditable = await checkIfTrainingEditable(
+          //     trainingDate,
+          //     isAdmin,
+          //     !!info.detail.event._def.extendedProps.rapport.archived,
+          //     !!info.detail.event._def.extendedProps.rapport.invoicedIn
+          //   );
+          //   if (isEditable) {
+          //     showEditForm = true;
+          //   } else {
+          //     showViewFrom = true;
+          //   }
+          //   // @ts-ignore
+          //   rapportToUpdateId = info.detail.event._def.extendedProps.rapport.id;
         }}
         on:dateSelected={(info) => {
           let timeDiff = dayjs(info.detail.end).diff(
@@ -602,7 +554,7 @@
             .second(0)
             .format("HH:mm:ss");
           // @ts-ignore
-          selectedStartTime = info.detail.startStr;
+
           showCreateForm = true;
           // todo auto fill the start date and duration by calculating the duration with start and end date
         }}

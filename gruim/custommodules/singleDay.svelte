@@ -28,6 +28,7 @@
     platz: any;
     trainer: any;
     notizen?: string;
+    kundes?: any;
   }[] = [];
   export let selectedDate = "";
   export let selectedTrainer: any;
@@ -127,15 +128,26 @@
         }
       },
       events: raports.map((r) => {
-        let name = r.kunde
-          ? `Kunde: ${r.kunde?.name}, ${r.kunde?.vorname}`
-          : r.gruppe
-            ? `Gruppe: ${r.gruppe?.gruppentyp} - ${r.gruppe?.gruppenname}`
+        let name = "";
+
+        let kundes =
+          r.kundes.length > 0
+            ? `Kundes: ${r.kundes.map((k: any) => `${k.name} ${k.vorname}`).join(", ")}`
             : "";
+
+        if (kundes) {
+          name = kundes;
+        } else {
+          name = r.kunde
+            ? `Kunde: ${r.kunde?.name}, ${r.kunde?.vorname}`
+            : r.gruppe
+              ? `Gruppe: ${r.gruppe?.gruppentyp} - ${r.gruppe?.gruppenname}`
+              : "";
+        }
 
         return {
           id: createEventId(),
-          title: `${name}`,
+          title: `${name} ${kundes ? `| ${kundes}` : ""}`,
           platz: `${r.platz?.tenniscourt || ""}`,
           notizen: `${r.notizen || ""}`,
           backgroundColor: ` ${

@@ -1,0 +1,95 @@
+{{- if .Values.customersync.enabled -}}
+{{- if .Capabilities.APIVersions.Has "batch/v1beta1" }}
+apiVersion: batch/v1beta1
+{{- else -}}
+apiVersion: batch/v1
+{{- end }}
+kind: CronJob
+metadata:
+    name: jcs-customer-sync-cronjob
+spec:
+  schedule: "25 * * * *"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: cron-batch-job
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: jcs-customer-sync
+            image: patrickriegler/jcs-customer-sync
+            # args: ["100"]
+            env:
+              - name: PGHOST
+                valueFrom:
+                  secretKeyRef:
+                    key: host
+                    name: auroramysql
+              - name: PGUSER
+                valueFrom:
+                  secretKeyRef:
+                    key: username
+                    name: auroramysql
+              - name: PGPW
+                valueFrom:
+                  secretKeyRef:
+                    key: password
+                    name: auroramysql
+              - name: PGPORT
+                valueFrom:
+                  secretKeyRef:
+                    key: port
+                    name: auroramysql
+---
+{{- if .Capabilities.APIVersions.Has "batch/v1beta1" }}
+apiVersion: batch/v1beta1
+{{- else -}}
+apiVersion: batch/v1
+{{- end }}
+kind: CronJob
+metadata:
+    name: jcs-customer-sync-cronjob-over-2000
+spec:
+  schedule: "35 * * * *"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: cron-batch-job-over-2000
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: jcs-customer-sync
+            image: patrickriegler/jcs-customer-sync
+            # args: ["100"]
+            env:
+              - name: PGHOST
+                valueFrom:
+                  secretKeyRef:
+                    key: host
+                    name: auroramysql
+              - name: PGUSER
+                valueFrom:
+                  secretKeyRef:
+                    key: username
+                    name: auroramysql
+              - name: PGPW
+                valueFrom:
+                  secretKeyRef:
+                    key: password
+                    name: auroramysql
+              - name: PGPORT
+                valueFrom:
+                  secretKeyRef:
+                    key: port
+                    name: auroramysql
+              - name: OFFSET
+                value: "2000"
+{{- end }}
