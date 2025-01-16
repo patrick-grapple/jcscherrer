@@ -4,6 +4,8 @@
 
 testdata:
   enabled: true
+customersync:
+  enabled: true
 
 # env:
 #   - name: SVELTE_APP_USERNAME

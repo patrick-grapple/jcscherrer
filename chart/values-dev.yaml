@@ -18,6 +18,8 @@ testdata:
   enabled: true
 externalsecrets:
   enabled: false
+customersync:
+  enabled: false
 
 gras-deploy: 
   # gras: 

@@ -6,6 +6,8 @@ testdata:
   enabled: true
 externalsecrets:
   enabled: false
+customersync:
+  enabled: false
 
 env:
   - name: SVELTE_APP_USERNAME
