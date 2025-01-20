@@ -309,6 +309,7 @@ tasks:
       - |
         FOLDER={{.GRUIM_INJECTION_FOLDER}}
         BASE64=$(if [[ "$OSTYPE" == "darwin"* ]]; then echo "base64"; else echo "base64 -w 0"; fi)
+        SED=$(if [[ "$OSTYPE" == "darwin"* ]]; then echo 'sed -i ".bak"'; else echo "sed -i"; fi)
         BASE="{{.BASE}}"  # Ensuring BASE is enclosed in quotes for full path reference
         cm="custommodules"
         FINDFILES=$(if [[ "$OSTYPE" == "msys"* ]]; then find ${FOLDER}/${cm} -name '\*.svelte'; else find ${FOLDER}/${cm} -name '*.svelte'; fi)
@@ -327,13 +328,17 @@ tasks:
               sed "s,.${file_extension},,g")
             injection_name=$(echo ${file_name} | sed "s,.${file_extension},,g")
             base64_content=$(cat ${file_path} | tr -d '\r' | ${BASE64})  # Base64 on single line
+            base64_content_file=./tmpfile
+            cat ${file_path} | tr -d '\r' | ${BASE64} > ${base64_content_file}
+            ${SED} "1s/^/content=/" ${base64_content_file}
+            ${SED} "1s/^/name=${injection_name}\n/" ${base64_content_file}
             if [ "${file_name}" = "index.ts" ]; then continue; fi
             echo "patching: ${FOLDER} - ${cm} - ${injection_name} - \
               ${file_name}"
-            yq -i ".${BASE}.${FOLDER}.${cm} += [{\"name\": \
-              \"${injection_name}\", \"content\": \"${base64_content}\"}]" \
-              {{.VALUES_YAML_PATH}}
+            yq -i ".${BASE}.${FOLDER}.${cm} += [load_props(\"${base64_content_file}\")]" \
+              {{.VALUES_YAML_PATH}} 
           done
+          rm ${base64_content_file}
         else
           echo "failed to add ${FOLDER} values..."
           exit 99
