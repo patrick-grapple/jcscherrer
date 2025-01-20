@@ -270,6 +270,7 @@ tasks:
       - |
         FOLDER={{.GRAPI_INJECTION_FOLDER}}
         BASE64=$(if [[ "$OSTYPE" == "darwin"* ]]; then echo "base64"; else echo "base64 -w 0"; fi)
+        SED=$(if [[ "$OSTYPE" == "darwin"* ]]; then echo 'sed -i ".bak"'; else echo "sed -i"; fi)
         FINDFILES="$(if [[ "$OSTYPE" == "msys"* ]]; then find ${FOLDER} -name '\*.ts' -or -name '\*.sh' -or -name '\*.bash'; else find ${FOLDER} -name '*.ts' -or -name '*.sh' -or -name '*.bash'; fi)"
         BASE="{{.BASE}}"  # Ensuring BASE is enclosed in quotes for full path reference
         if yq -e ".${BASE}.${FOLDER}" {{.VALUES_YAML_PATH}} >/dev/null; then
@@ -288,8 +289,8 @@ tasks:
             base64_content=$(cat ${file_path} | tr -d '\r' | ${BASE64})  # Base64 on single line
             base64_content_file=./tmpfile
             cat ${file_path} | tr -d '\r' | ${BASE64} > ${base64_content_file}
-            sed -i ".bak" "1s/^/content=/" ${base64_content_file}
-            sed -i ".bak" "1s/^/name=${injection_name}\n/" ${base64_content_file}
+            ${SED} "1s/^/content=/" ${base64_content_file}
+            ${SED} "1s/^/name=${injection_name}\n/" ${base64_content_file}
             if [ "${file_name}" = "index.ts" ]; then continue; fi
             echo "patching: ${FOLDER} - ${group_name} - ${injection_name} - \
               ${file_name}"
