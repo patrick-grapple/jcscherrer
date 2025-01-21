@@ -13,7 +13,8 @@ customersync:
 #   - name: SVELTE_APP_PASSWORD
 #     value: password
 
-gras-deploy:
+# gras-deploy:
+gras:
   grapi:
     autoscaling:
       minReplicas: 2

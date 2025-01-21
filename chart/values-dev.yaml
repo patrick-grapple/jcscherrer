@@ -11,7 +11,7 @@ env:
 - name: SVELTE_APP_USERNAME
   value: admin
 - name: SVELTE_APP_PASSWORD
-  value: password
+  value: admin
 
 
 testdata:
@@ -20,8 +20,10 @@ externalsecrets:
   enabled: false
 customersync:
   enabled: false
+bexio:
+  enabled: false
 
-gras-deploy: 
+gras:
   # gras: 
   #   ssl: false
   grapi:

@@ -6,6 +6,8 @@ externalsecrets:
   enabled: true
 customersync:
   enabled: true
+bexio:
+  enabled: true
 env:
   - name: SVELTE_APP_USERNAME
     # value: admin
@@ -21,6 +23,8 @@ env:
         key: SVELTE_APP_PASSWORD
 # configuration for grapple ApplicationSet (gras)
 gras-deploy:
+  enabled: false
+gras:
   enabled: true
   gras: {}
   grapi:

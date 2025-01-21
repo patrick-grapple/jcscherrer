@@ -6,7 +6,7 @@ vars:
   VALUES_YAML_PATH: "chart/values.yaml"
   GRAPI_INJECTION_FOLDER: "grapi"
   GRUIM_INJECTION_FOLDER: "gruim"
-  BASE: "gras-deploy"
+  BASE: "gras"
   CHART_FOLDER: "./chart"
   CHART_NAME: # use the current folder as the chart name
     sh: if [ "$(echo ${PWD##*/})" != "build" ]; then echo ${PWD##*/}; else echo ${PROJECT_NAME_SHORT}; fi

@@ -70,6 +70,7 @@ deployments:
       valuesFiles:
         - ./chart/values-dev.yaml
         - ./chart/values-devspace.yaml
+        - ./chart/values-dev-invoicing.yaml
       values:
         DEV: "true"
 # This is a list of `dev` containers that are based on the containers created by your deployments
@@ -88,8 +89,11 @@ dev:
       - path: ./
         excludePaths:
           - node_modules
-          - gruim
+          - chart
+          - data
+          - dist
           - grapi
+          - gruim
         uploadExcludeFile: .dockerignore
     # Open a terminal and use the following command to start it
     terminal:
