@@ -18,9 +18,8 @@ gras:
   grapi:
     autoscaling:
       minReplicas: 2
-    externalsecrets: []
-    extraSecrets: 
-    - jcs-conn-credential
+    # extraSecrets: 
+    # - jcs-conn-credential
     datasources:
       - name: jcscherrer
         spec:

@@ -27,6 +27,7 @@ gras-deploy:
 gras:
   enabled: true
   gras: {}
+  # ssl: false
   grapi:
     beimagetag: "0.2.9"
     automigrate: false
@@ -37,31 +38,23 @@ gras:
     ingress: true
     ssl: true
     sslissuer: letsencrypt-grapple-demo
-    externalsecrets:
-      # - name: "classicmodelsas-auroramysql"
-      #   spec:
-      #     refreshInterval: 1h
-      #     secretStoreRef:
-      #       name: aws-secretstore
-      #       kind: ClusterSecretStore
-      #     target:
-      #       name: auroramysql
-      #       creationPolicy: Owner
-      #     dataFrom:
-      #       - extract:
-      #           key: cloud20x/rds/auroramysql
-      - name: "jcscherrer-bexio"
-        spec:
-          refreshInterval: 1h
-          secretStoreRef:
-            name: aws-secretstore
-            kind: ClusterSecretStore
-          target:
-            name: jcscherrer-bexio
-            creationPolicy: Owner
-          dataFrom:
-            - extract:
-                key: cloud20x/jcscherrer/bexionop
+    extraSecrets:
+      - app-jcscherrer-conn-credential
+      - jcs-bexio
+    # externalsecrets:
+    #   - name: "jcs-bexio"
+    #     spec:
+    #       refreshInterval: "1h"
+    #       secretStoreRef:
+    #         name: aws-secret-store-jcs
+    #         kind: ClusterSecretStore
+    #       target:
+    #         name: jcs-bexio
+    #         creationPolicy: Owner
+    #         deletionPolicy: Retain
+    #       dataFrom:
+    #         - extract:
+    #             key: grapple/jcscherrer/bexio
     initContainers:
       - name: wait-for-db
         spec:

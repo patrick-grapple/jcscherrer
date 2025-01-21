@@ -32,7 +32,6 @@ gras:
     autoscaling:
       minReplicas: 1
       maxReplicas: 1
-    externalsecrets: []
     extraSecrets: 
     - app-jcscherrer-conn-credential
     datasources:

@@ -68,9 +68,10 @@ deployments:
       # Under `values` we can define the values for this Helm chart used during `helm install/upgrade`
       # You may also use `valuesFiles` to load values from files, e.g. valuesFiles: ["values.yaml"]
       valuesFiles:
+        - ./chart/values.yaml
         - ./chart/values-dev.yaml
         - ./chart/values-devspace.yaml
-        - ./chart/values-dev-invoicing.yaml
+        # - ./chart/values-dev-invoicing.yaml
       values:
         DEV: "true"
 # This is a list of `dev` containers that are based on the containers created by your deployments
