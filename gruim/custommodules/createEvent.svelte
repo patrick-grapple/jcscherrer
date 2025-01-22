@@ -86,6 +86,7 @@
         "platz",
         "trainingType",
         "kunde",
+        "kundeIds",
         "gruppe",
         "notizen",
         "nachholtermin",
@@ -173,12 +174,26 @@
                 regex: ".*\\S.*",
               },
             },
+            {
+              field: "kundes",
+              validation: {
+                message: "Kunde can't be empty",
+                regex: ".*\\S.*",
+              },
+            },
           ]
         : [
             {
               field: "trainer",
               validation: {
                 message: "Trainer can't be empty",
+                regex: ".*\\S.*",
+              },
+            },
+            {
+              field: "kundes",
+              validation: {
+                message: "Kunde can't be empty",
                 regex: ".*\\S.*",
               },
             },
@@ -210,6 +225,22 @@
             {
               label: "Aufschlagtraining",
               value: "aufschlag",
+            },
+            {
+              label: "Fitness Tennis",
+              value: "fitness_tennis",
+            },
+            {
+              label: "Morning Treff",
+              value: "morning_treff",
+            },
+            {
+              label: "After Work",
+              value: "after_work",
+            },
+            {
+              label: "Mittags Treff",
+              value: "mittags_treff",
             },
           ],
         },

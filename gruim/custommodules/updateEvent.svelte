@@ -88,6 +88,7 @@
         "platz",
         "trainingType",
         "kunde",
+        "kundeIds",
         "gruppe",
         "notizen",
         "nachholtermin",
@@ -181,6 +182,22 @@
             {
               label: "Aufschlagtraining",
               value: "aufschlag",
+            },
+            {
+              label: "Fitness Tennis",
+              value: "fitness_tennis",
+            },
+            {
+              label: "Morning Treff",
+              value: "morning_treff",
+            },
+            {
+              label: "After Work",
+              value: "after_work",
+            },
+            {
+              label: "Mittags Treff",
+              value: "mittags_treff",
             },
           ],
         },
