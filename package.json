@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "devDependencies": {
     "@module-federation/dashboard-plugin": "2.7.2",
+    "@playwright/test": "^1.50.0",
     "@tsconfig/svelte": "4.0.1",
     "@types/node": "18.15.11",
     "autoprefixer": "10.4.14",
@@ -39,6 +40,11 @@
     "dev": "env-cmd --silent webpack serve --open --mode development --live-reload --hot"
   },
   "dependencies": {
+    "fullcalendar": "^6.1.15",
+    "playwright": "^1.50.0",
+    "stores": "^1.0.0",
+    "svelte-fullcalendar": "^3.0.0",
+    "svelte-i18n": "^4.0.1",
     "svelte-json-tree": "1.0.0"
   }
 }

@@ -146,3 +146,9 @@ grapi/controllers/index.ts
 
 # ignore all *.bak files
 **/*.bak
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
