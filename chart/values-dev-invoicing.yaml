@@ -1,0 +1,10 @@
+externalsecrets:
+  enabled: true
+bexio:
+  enabled: true
+
+gras:
+  grapi:
+    extraSecrets:
+      - app-jcscherrer-conn-credential
+      - jcs-bexio
