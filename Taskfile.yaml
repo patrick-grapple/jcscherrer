@@ -434,7 +434,8 @@ tasks:
         if [ -f ${VALUES_STAGE} ]; then
 
           # patch data container:
-          yq e -i '.gras-deploy.grapi.initContainers[0].spec.image = "grpl/jcs-{{.STAGE}}-data:{{.TAG}}"' ${VALUES_STAGE} || true
+          yq e -i '.gras.grapi.initContainers[0].spec.image = "grpl/jcs-{{.STAGE}}-data:{{.TAG}}"' ${VALUES_STAGE} || true
+          yq e -i '.gras.grapi.initContainers[1].spec.image = "grpl/jcs-{{.STAGE}}-data:{{.TAG}}"' ${VALUES_STAGE} || true
 
           VALUES_FILE_COMMAND=" --values ${VALUES_STAGE} "
           echo "VALUES_FILE_STAGE: ${VALUES_FILE_STAGE}"
