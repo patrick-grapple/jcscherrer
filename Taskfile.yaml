@@ -198,7 +198,7 @@ tasks:
               ${file_name}"
             yq -i "del(.${BASE}.${FOLDER}.${group_name}[] | \
               select(.name == \"${injection_name}\"))" {{.VALUES_YAML_PATH}}
-            if [[ "${group_name}" == "injections" ]]; then 
+            if [ "${group_name}" == "injections" ]; then 
               group_name = "controllers"
             fi
             yq -i ".${BASE}.${FOLDER}.${group_name} += [{\"name\": \
