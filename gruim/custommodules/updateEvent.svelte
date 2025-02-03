@@ -24,7 +24,7 @@
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
     let kundeIds = document.querySelector('div[placeholder="kundes"]');
-    kundeIds?.click();
+    // kundeIds?.click();
 
     if (kundeIds) {
       // Create a MutationObserver instance
@@ -38,7 +38,7 @@
               console.log("Child removed:", node);
             });
           }
-          if (mutation.type === "characterData") {
+          if (mutation.type === "childList") {
             // check formdata.kundeIds.length and if more than 1, set trainingType to gruppe and if it is 1 and the previous value was gruppe, set it to private
             if (formData.kundeIds.length > 1) {
               formData.trainingType = "gruppe";
@@ -104,21 +104,15 @@
           type: "FAVORITE",
           editable: true,
           columns: [
+            "id",
             "bexioId",
             "name",
             "vorname",
-            "plz",
             "ort",
-            "mail",
-            "strasse",
-            "land",
             "geburtstag",
-            "mail2",
             "phone",
-            "phone2",
             "phoneMobile",
             "notizen",
-            "id",
           ],
         },
         {
@@ -144,12 +138,26 @@
                 regex: ".*\\S.*",
               },
             },
+            {
+              field: "kundeIds",
+              validation: {
+                message: "Kunde can't be empty",
+                regex: ".*\\S.*",
+              },
+            },
           ]
         : [
             {
               field: "trainer",
               validation: {
                 message: "Trainer can't be empty",
+                regex: ".*\\S.*",
+              },
+            },
+            {
+              field: "kundeIds",
+              validation: {
+                message: "Kunde can't be empty",
                 regex: ".*\\S.*",
               },
             },

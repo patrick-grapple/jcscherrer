@@ -38,7 +38,7 @@
               console.log("Child removed:", node);
             });
           }
-          if (mutation.type === "characterData") {
+          if (mutation.type === "childList") {
             // check formdata.kundeIds.length and if more than 1, set trainingType to gruppe and if it is 1 and the previous value was gruppe, set it to private
             if (formData.kundeIds.length > 1) {
               formData.trainingType = "gruppe";
@@ -174,10 +174,11 @@
                 regex: ".*\\S.*",
               },
             },
+
             {
-              field: "kundes",
+              field: "kundeIds",
               validation: {
-                message: "Kunde can't be empty",
+                message: "Kundes can't be empty",
                 regex: ".*\\S.*",
               },
             },
@@ -191,9 +192,9 @@
               },
             },
             {
-              field: "kundes",
+              field: "kundeIds",
               validation: {
-                message: "Kunde can't be empty",
+                message: "Kundes can't be empty",
                 regex: ".*\\S.*",
               },
             },
