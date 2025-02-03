@@ -279,6 +279,7 @@ gras:
     controllers: []
     prerelationpatches: []
     postpatches: []
+    injections: []
   gruim:
     uiimagetag: "0.2.9"
     autoscaling:

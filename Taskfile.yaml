@@ -198,6 +198,9 @@ tasks:
               ${file_name}"
             yq -i "del(.${BASE}.${FOLDER}.${group_name}[] | \
               select(.name == \"${injection_name}\"))" {{.VALUES_YAML_PATH}}
+            if [[ "${group_name}" == "injections" ]]; then 
+              group_name = "controllers"
+            fi
             yq -i ".${BASE}.${FOLDER}.${group_name} += [{\"name\": \
               \"${injection_name}\", \"content\": \"${base64_content}\"}]" \
               {{.VALUES_YAML_PATH}}
@@ -224,7 +227,7 @@ tasks:
         FOLDER={{.GRAPI_INJECTION_FOLDER}}
         BASE64=$(if [[ "$OSTYPE" == "darwin"* ]]; then echo "base64"; else echo "base64 -w 0"; fi)
         BASE="{{.BASE}}"  # Ensuring BASE is enclosed in quotes for full path reference
-        GROUPS="controllers prerelationpatches postpatches"
+        GROUPS="injections controllers prerelationpatches postpatches"
         if yq -e ".${BASE}.${FOLDER}" {{.VALUES_YAML_PATH}} >/dev/null; then
           for group_name in $(echo ${GROUPS}); do
             echo "reset ${group_name}"

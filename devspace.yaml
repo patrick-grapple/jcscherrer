@@ -142,9 +142,13 @@ dev:
     env:
       - name: DEV
         value: "true"
+      - name: CustomControllerDir
+        value: "injections"
+      - name: CustomControllerDirs
+        value: '{"controllerDirs": "injections"}'
     # TODO: path to the controller directory
     sync:
-      - path: ./grapi/controllers/:/home/node/app/src/controllers/
+      - path: ./grapi/injections/:/home/node/app/src/injections/
     # restartHelper:
     #   inject: true
     #   path: "export DEV=true && ./start.sh"
