@@ -295,6 +295,9 @@ tasks:
             ${SED} "1s/^/content=/" ${base64_content_file}
             ${SED} "1s/^/name=${injection_name}\n/" ${base64_content_file}
             if [ "${file_name}" = "index.ts" ]; then continue; fi
+            if [ "${group_name}" = "injections" ]; then 
+              group_name="controllers"
+            fi
             echo "patching: ${FOLDER} - ${group_name} - ${injection_name} - \
               ${file_name}"
             yq -i "del(.${BASE}.${FOLDER}.${group_name}[] | \
