@@ -15,7 +15,7 @@ pipelines:
   build: |-
     build_images --all
   build-app: |-
-    build_images app
+    build_images jcs
   # This is the pipeline for the main command: `devspace dev` (or `devspace run-pipeline dev`)
   dev:
     run: |-
@@ -24,6 +24,7 @@ pipelines:
       run_dependencies --all       # 1. Deploy any projects this project needs (see "dependencies")
       ensure_pull_secrets --all    # 2. Ensure pull secrets
       build_images --all -t $(git describe --always)    # 3. Build, tag (git commit hash) and push all images (see "images")
+      build_images data -t data    # 3. Build, tag (git commit hash) and push all images (see "images")
       create_deployments --all     # 3. Deploy Helm charts and manifests specfied as "deployments"
       echo "waiting on chart deployment..."
       # TODO: find a solution for windows (while is not working on windows)...
@@ -186,6 +187,6 @@ profiles:
           CI: true
     patches:
       - op: remove
-        path: images.app.buildKit
+        path: images.jcs.buildKit
       - op: remove
         path: images.data.buildKit
