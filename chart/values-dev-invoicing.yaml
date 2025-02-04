@@ -6,5 +6,5 @@ bexio:
 gras:
   grapi:
     extraSecrets:
-      - app-jcscherrer-conn-credential
+      - jcs-jcscherrer-conn-credential
       - jcs-bexio

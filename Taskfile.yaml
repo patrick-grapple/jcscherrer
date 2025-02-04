@@ -289,15 +289,16 @@ tasks:
               "s,.${group_name}.${file_extension},,g" | sed \
               "s,.${group_name::${#group_name}-1}.${file_extension},,g" | \
               sed "s,.${file_extension},,g")
+            if [ "${group_name}" = "injections" ]; then 
+              group_name="controllers"
+              injection_name=$(echo ${injection_name} | sed "s,.controller,,g")
+            fi
             base64_content=$(cat ${file_path} | tr -d '\r' | ${BASE64})  # Base64 on single line
             base64_content_file=./tmpfile
             cat ${file_path} | tr -d '\r' | ${BASE64} > ${base64_content_file}
             ${SED} "1s/^/content=/" ${base64_content_file}
             ${SED} "1s/^/name=${injection_name}\n/" ${base64_content_file}
             if [ "${file_name}" = "index.ts" ]; then continue; fi
-            if [ "${group_name}" = "injections" ]; then 
-              group_name="controllers"
-            fi
             echo "patching: ${FOLDER} - ${group_name} - ${injection_name} - \
               ${file_name}"
             yq -i "del(.${BASE}.${FOLDER}.${group_name}[] | \

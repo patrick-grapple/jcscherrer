@@ -2,10 +2,10 @@
 apiVersion: grsf.grpl.io/v1alpha1
 kind: GrappleApplicationSet
 metadata:
-  name: {{ include "myapp.fullname" . }}
+  name: {{ $.Release.Namespace }}-{{ $.Release.Name }}
 spec:
   grapis:
-  - name: {{ include "myapp.fullname" . }}
+  - name: {{ $.Release.Namespace }}-{{ $.Release.Name }}
     spec:
       {{- if .Values.gras.gras -}}
       {{ .Values.gras.gras | toYaml | nindent 6 }}
@@ -14,7 +14,7 @@ spec:
       {{ .Values.gras.grapi | toYaml | nindent 6 }}
       {{- end }}
   gruims:
-  - name: {{ include "myapp.fullname" . }}
+  - name: {{ $.Release.Namespace }}-{{ $.Release.Name }}
     spec:
       {{- if .Values.gras.gras -}}
       {{ .Values.gras.gras | toYaml | nindent 6 }}

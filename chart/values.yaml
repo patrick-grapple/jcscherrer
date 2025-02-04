@@ -39,7 +39,7 @@ gras:
     ssl: true
     sslissuer: letsencrypt-grapple-demo
     extraSecrets:
-      - app-jcscherrer-conn-credential
+      - jcs-jcscherrer-conn-credential
       - jcs-bexio
     # externalsecrets:
     #   - name: "jcs-bexio"
