@@ -265,7 +265,7 @@ gras:
           sourceModel: Invoices
     fuzzysearch:
       - name: kunde
-        content: 'jcs:{"fuzzy":true,"centralFuzzy":false,"datasource":"jcscherrer","appName":"Grpl","include":"kunde"}'
+        content: 'jcs:{"fuzzy":true,"centralFuzzy":false,"datasource":"jcscherrer","appName":"Grpl","include":"kunde","subPath":""}'
         # spec:
         #   fuzzy: true
         #   centralFuzzy: false
