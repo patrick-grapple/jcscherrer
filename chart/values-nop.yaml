@@ -29,7 +29,7 @@ gras:
       maxReplicas: 1
     externalsecrets: []
     extraSecrets: 
-      - jcs-jcscherrer-conn-credential
+      - jcs-conn-credential
     datasources:
       - name: jcscherrer
         spec:
