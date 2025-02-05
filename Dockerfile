@@ -27,6 +27,16 @@ RUN npm i -g pnpm@6.32.3
 
 WORKDIR /app
 
+RUN apk add --no-cache --update musl musl-utils musl-locales 
+
+RUN echo 'export LC_ALL=de_CH.UTF-8' >> /etc/profile.d/locale.sh && \
+    sed -i 's|LANG=C.UTF-8|LANG=de_CH.UTF-8|' /etc/profile.d/locale.sh
+
+# Set environment variables for language and encoding
+ENV LANG de_CH.UTF-8
+ENV LANGUAGE de_CH:de
+ENV LC_ALL de_CH.UTF-8
+
 # Copy built files from the build stage to the production image
 # COPY --from=build /app/dist /usr/share/nginx/html
 COPY *.js ./

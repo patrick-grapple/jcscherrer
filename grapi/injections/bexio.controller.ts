@@ -498,6 +498,20 @@ export class BexioController {
         return groupSize >= 5 ? "4510" : "4500";
       }
 
+      // Handle Treff training types
+      if (trainingType === "fitness_tennis") {
+        return "5010";
+      }
+      if (trainingType === "morning_treff") {
+        return "5020";
+      }
+      if (trainingType === "after_work") {
+        return "5040";
+      }
+      if (trainingType === "mittags_treff") {
+        return "5050";
+      }
+
       // Handle regular group trainings
       const isAdultParticipant = isAdult(kunde);
 

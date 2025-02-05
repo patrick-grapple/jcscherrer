@@ -6,7 +6,7 @@ env:
   - name: SVELTE_APP_USERNAME
     value: admin
   - name: SVELTE_APP_PASSWORD
-    value: password
+    value: admin
 
 dblocal:
   enabled: true
@@ -16,8 +16,11 @@ externalsecrets:
   enabled: false
 customersync:
   enabled: false
+bexio:
+  enabled: false
 
-gras-deploy:
+# gras-deploy:
+gras:
   grapi:
     ssl: false
     autorestartgruim: false
@@ -26,7 +29,7 @@ gras-deploy:
       maxReplicas: 1
     externalsecrets: []
     extraSecrets: 
-    - app-jcscherrer-conn-credential
+      - jcs-jcscherrer-conn-credential
     datasources:
       - name: jcscherrer
         spec:
