@@ -135,8 +135,20 @@
             // add favorite boolean field to relational fields
             "relational-fields": [
               {
-                name: "kundeId",
+                name: "kundeIds",
                 type: "FAVORITE",
+                editable: true,
+                columns: [
+                  "id",
+                  "bexioId",
+                  "name",
+                  "vorname",
+                  "ort",
+                  "geburtstag",
+                  "phone",
+                  "phoneMobile",
+                  "notizen",
+                ],
               },
             ],
           },

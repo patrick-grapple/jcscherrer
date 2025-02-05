@@ -15,7 +15,7 @@ pipelines:
   build: |-
     build_images --all
   build-app: |-
-    build_images app
+    build_images jcs
   # This is the pipeline for the main command: `devspace dev` (or `devspace run-pipeline dev`)
   dev:
     run: |-
@@ -24,6 +24,7 @@ pipelines:
       run_dependencies --all       # 1. Deploy any projects this project needs (see "dependencies")
       ensure_pull_secrets --all    # 2. Ensure pull secrets
       build_images --all -t $(git describe --always)    # 3. Build, tag (git commit hash) and push all images (see "images")
+      build_images data -t data    # 3. Build, tag ("data") and push the data image (see "images")
       create_deployments --all     # 3. Deploy Helm charts and manifests specfied as "deployments"
       echo "waiting on chart deployment..."
       # TODO: find a solution for windows (while is not working on windows)...
@@ -34,7 +35,7 @@ pipelines:
       # kubectl get deploy -l app.kubernetes.io/name=grapi --for=condition=available
       start_dev grapi
       start_dev gruim
-      start_dev app                # 4. Start dev mode \"app\" (see \"dev\" section)
+      start_dev jcs                # 4. Start dev mode \"app\" (see \"dev\" section)
   # You can run this pipeline via `devspace deploy` (or `devspace run-pipeline deploy`)
   deploy:
     run: |-
@@ -47,7 +48,7 @@ pipelines:
 # This is a list of `images` that DevSpace can build for this project
 # We recommend to skip image building during development (devspace dev) as much as possible
 images:
-  app:
+  jcs:
     image: "${IMAGE_REGISTRY}/${IMAGE_REPO}:devspace"
     dockerfile: ./Dockerfile
     buildKit: # {} # implemented for bitbucket pipeline with the patch at the end of this file
@@ -59,7 +60,7 @@ images:
       args: [--platform, 'linux/amd64,linux/arm64']
 # This is a list of `deployments` that DevSpace can create for this project
 deployments:
-  app:
+  jcs:
     # This deployment uses `helm` but you can also define `kubectl` deployments or kustomizations
     helm:
       # We are deploying this project with the Helm chart you provided
@@ -68,16 +69,18 @@ deployments:
       # Under `values` we can define the values for this Helm chart used during `helm install/upgrade`
       # You may also use `valuesFiles` to load values from files, e.g. valuesFiles: ["values.yaml"]
       valuesFiles:
+        - ./chart/values.yaml
         - ./chart/values-dev.yaml
         - ./chart/values-devspace.yaml
+        # - ./chart/values-dev-invoicing.yaml
       values:
         DEV: "true"
 # This is a list of `dev` containers that are based on the containers created by your deployments
 dev:
-  app:
+  jcs:
     # Search for the container that runs this image
     labelSelector:
-      app.kubernetes.io/instance: app
+      app.kubernetes.io/instance: jcs
     # Replace the container image with this dev-optimized image (allows to skip image building during development)
     devImage: "${IMAGE_REGISTRY}/${IMAGE_REPO}:devspace"
     # Sync files between the local filesystem and the development container
@@ -88,8 +91,11 @@ dev:
       - path: ./
         excludePaths:
           - node_modules
-          - gruim
+          - chart
+          - data
+          - dist
           - grapi
+          - gruim
         uploadExcludeFile: .dockerignore
     # Open a terminal and use the following command to start it
     terminal:
@@ -114,7 +120,7 @@ dev:
     # Search for the container that runs this image
     labelSelector:
       app.kubernetes.io/name: gruim
-    devImage: docker.io/grpl/gruim:0.2.9
+    devImage: docker.io/grpl/gruim:0.2.10
     env:
       - name: DEV
         value: "true"
@@ -137,9 +143,13 @@ dev:
     env:
       - name: DEV
         value: "true"
+      - name: CustomControllerDir
+        value: "injections"
+      - name: CustomControllerDirs
+        value: '{"controllerDirs": "injections"}'
     # TODO: path to the controller directory
     sync:
-      - path: ./grapi/controllers/:/home/node/app/src/controllers/
+      - path: ./grapi/injections/:/home/node/app/src/injections/
     # restartHelper:
     #   inject: true
     #   path: "export DEV=true && ./start.sh"
@@ -177,6 +187,6 @@ profiles:
           CI: true
     patches:
       - op: remove
-        path: images.app.buildKit
+        path: images.jcs.buildKit
       - op: remove
         path: images.data.buildKit

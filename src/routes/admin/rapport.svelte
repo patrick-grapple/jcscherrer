@@ -108,6 +108,8 @@
               "platz",
               "trainingType",
               "kunde",
+              "kundes",
+              "kundeIds",
               "gruppe",
               "notizen",
               "nachholtermin",
@@ -166,7 +168,7 @@
             ],
             "relational-fields": [
               {
-                name: "kundeId",
+                name: "kundeIds",
                 type: "FAVORITE",
                 editable: true,
                 columns: ["id", "name", "vorname", "geburtstag", "notizen"],

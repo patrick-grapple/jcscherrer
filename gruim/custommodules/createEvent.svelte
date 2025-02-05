@@ -38,7 +38,7 @@
               console.log("Child removed:", node);
             });
           }
-          if (mutation.type === "characterData") {
+          if (mutation.type === "childList") {
             // check formdata.kundeIds.length and if more than 1, set trainingType to gruppe and if it is 1 and the previous value was gruppe, set it to private
             if (formData.kundeIds.length > 1) {
               formData.trainingType = "gruppe";
@@ -86,6 +86,7 @@
         "platz",
         "trainingType",
         "kunde",
+        "kundeIds",
         "gruppe",
         "notizen",
         "nachholtermin",
@@ -173,12 +174,27 @@
                 regex: ".*\\S.*",
               },
             },
+
+            {
+              field: "kundeIds",
+              validation: {
+                message: "Kundes can't be empty",
+                regex: ".*\\S.*",
+              },
+            },
           ]
         : [
             {
               field: "trainer",
               validation: {
                 message: "Trainer can't be empty",
+                regex: ".*\\S.*",
+              },
+            },
+            {
+              field: "kundeIds",
+              validation: {
+                message: "Kundes can't be empty",
                 regex: ".*\\S.*",
               },
             },
@@ -210,6 +226,22 @@
             {
               label: "Aufschlagtraining",
               value: "aufschlag",
+            },
+            {
+              label: "Fitness Tennis",
+              value: "fitness_tennis",
+            },
+            {
+              label: "Morning Treff",
+              value: "morning_treff",
+            },
+            {
+              label: "After Work",
+              value: "after_work",
+            },
+            {
+              label: "Mittags Treff",
+              value: "mittags_treff",
             },
           ],
         },

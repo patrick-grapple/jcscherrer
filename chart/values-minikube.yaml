@@ -1,5 +1,7 @@
 externalsecrets:
   enabled: false
+bexio:
+  enabled: false
 
 env:
 - name: SVELTE_APP_REMOTE_URL
@@ -11,10 +13,11 @@ env:
 - name: SVELTE_APP_USERNAME
   value: admin
 - name: SVELTE_APP_PASSWORD
-  value: password
+  value: admin
 
 
-gras-deploy: 
+# gras-deploy:
+gras:
   # gras: 
   #   ssl: false
   grapi:
