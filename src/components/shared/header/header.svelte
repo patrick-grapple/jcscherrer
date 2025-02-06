@@ -137,6 +137,17 @@
       </Link>
 
       <Link
+        title="Archived Trainings"
+        to="archived-trainings"
+        class="{$location.pathname === '/admin/archived-trainings'
+          ? 'bg-primary-50 border-primary-600 text-primary-600'
+          : 'border-transparent text-gray-600 hover:bg-gray-50 hover:text-gray-900'}  group flex justify-center lg:!justify-start items-center px-3 py-2 text-sm font-medium border-t-4 sm:border-l-4 sm:border-t-0 flex-1"
+      >
+        <Archived class="text-primary-500 lg:mr-3 flex-shrink-0 h-6 w-6 " />
+        <span class="hidden hide-nav-item">Archived Trainings</span>
+      </Link>
+
+      <Link
         title="invoice-config"
         to="invoice-config"
         class="{$location.pathname === '/admin/invoice-config'
