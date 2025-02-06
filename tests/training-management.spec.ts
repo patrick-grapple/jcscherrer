@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test';
 
 // Define variables
-const BASE_URL = 'http://localhost:4000/admin';
-const ADMIN_USERNAME = 'admin';
-const ADMIN_PASSWORD = 'password';
+let BASE_URL = (!process.env.BASE_URL) ? 'http://localhost:4000/admin' : process.env.BASE_URL;
+let ADMIN_USERNAME = (!process.env.ADMIN_USERNAME) ? 'admin' : process.env.ADMIN_USERNAME;
+let ADMIN_PASSWORD = (!process.env.ADMIN_PASSWORD) ? 'password' : process.env.ADMIN_PASSWORD;
 const today = new Date().toISOString().split('T')[0]; // Get current date in YYYY-MM-DD format
 
 test('test', async ({ page }) => {
@@ -28,13 +28,11 @@ test('test', async ({ page }) => {
   await page.locator('.themed > .px-4').first().click();
   await page.waitForTimeout(500)
   await page.getByText('1, Scherrer, Jean-Claude, jc@jcscherrer.com', { exact: true }).click();
-  await page.getByText('Normal').click();
+  await page.waitForTimeout(500)
+  await page.getByText('1, Normal').click();
   await page.getByText('2, Club/Fixplatz', { exact: true }).click();
   await page.locator('input[type="text"]').nth(1).click();
   await page.getByText('private').first().click();
-  await page.locator('div:nth-child(7) > div > .col-span-1 > div > .themed > .px-4').click();
-  await page.getByText('rot, Müller, rot, 1,', { exact: true }).click();
-  await page.locator('.col-span-1 > .col-span-1 > div > .themed > .px-4').click();
   await page.getByRole('textbox', { name: 'kundes' }).fill('');
   await page.getByText('510, 1, bexio AG, , Rapperswil, null, +41 (0) 71 552 00 60, ,', { exact: true }).click();
   await page.getByRole('button', { name: 'Submit' }).click();
