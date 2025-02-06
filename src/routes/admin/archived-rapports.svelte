@@ -354,7 +354,6 @@
                 "default-values": [
                   {
                     name: "trainingType",
-                    value: "private",
                   },
                 ],
                 "date-fields": [

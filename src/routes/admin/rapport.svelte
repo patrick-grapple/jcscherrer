@@ -159,7 +159,6 @@
             "default-values": [
               {
                 name: "trainingType",
-                value: "private",
               },
               {
                 name: "invoicedIn",
