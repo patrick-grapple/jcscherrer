@@ -133,7 +133,7 @@ export class BexioController {
     console.log("Request called at:", new Date().toISOString());
     console.log("in request");
     console.log({ contentType });
-    console.log({ BexioBody });
+    console.log({ BexioBody: JSON.stringify(BexioBody, null, 2) });
 
     type KundeType = {
       bexioId: string;
@@ -234,8 +234,8 @@ export class BexioController {
       gruppe: GruppeType;
       gruppeId: number;
       invoicedIn: string | null;
-      kunde: KundeType;
-      kundeId: number;
+      kundes: KundeType[];
+      kundeIds: number[];
       nachholtermin: string | null;
       notizen: string;
       platz: PlatzType;
@@ -308,7 +308,14 @@ export class BexioController {
           const isFixplatz = rapport.platzId === 2;
 
           // Get the appropriate product code
+          // troubleshooting stuff
+          // console.log("rapport.trainingType: "+rapport.trainingType)
+          // console.log("groupSize: "+groupSize)
+          // console.log("rapport.kunde: "+rapport.kunde)
+          // console.log("isFixplatz: "+isFixplatz)
+          // console.log("isSummer: "+isSummer)
           const productCode = getGroupProductCode(rapport.trainingType, groupSize, rapport.kunde, isFixplatz, isSummer);
+          // console.log("before product")
 
           // Add to a new group for this product code if it doesn't exist
           if (!groupedInvoices[productCode]) {
@@ -456,7 +463,13 @@ export class BexioController {
     };
 
     const isAdult = (kunde: KundeType) => {
-      if (!kunde.geburtstag) return true;
+      // troubleshooting the kunde.geburtstag values
+      // console.log("check geburtstag...")
+      if (!kunde || !kunde.geburtstag) {
+        // console.log("geburtstag is empty...")
+        return true;
+      }
+      // console.log("geburtstag is NOT empty...")
       const age = dayjs().diff(dayjs(kunde.geburtstag), 'year');
       return age >= 18;
     };
@@ -588,19 +601,21 @@ export class BexioController {
     let parentRapports = [];
 
     for (let rapport of group.rapports) {
-      if (rapport.kundeId === group.kunde.id) {
+      if (rapport.kundeIds.includes(group.kunde.id)) {
         parentRapports.push(rapport);
         continue;
       }
 
-      if (childrenRapports[`${rapport.kunde.vorname} ${rapport.kunde.name}`]) {
-        childrenRapports[`${rapport.kunde.vorname} ${rapport.kunde.name}`].push(
-          rapport
-        );
-      } else {
-        childrenRapports[`${rapport.kunde.vorname} ${rapport.kunde.name}`] = [
-          rapport,
-        ];
+      for (let kunde of rapport.kundes) {
+        if (childrenRapports[`${kunde.vorname} ${kunde.name}`]) {
+          childrenRapports[`${kunde.vorname} ${kunde.name}`].push(
+            rapport
+          );
+        } else {
+          childrenRapports[`${kunde.vorname} ${kunde.name}`] = [
+            rapport,
+          ];
+        }
       }
     }
 

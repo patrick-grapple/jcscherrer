@@ -343,7 +343,7 @@
                   "trainer",
                   "platz",
                   "trainingType",
-                  "kunde",
+                  "kundes",
                   "gruppe",
                   "notizen",
                   "nachholtermin",
@@ -352,10 +352,10 @@
                   "id",
                 ],
                 "default-values": [
-                  {
-                    name: "trainingType",
-                    value: "private",
-                  },
+                  // {
+                  //   name: "trainingType",
+                  //   value: "private",
+                  // },
                 ],
                 "date-fields": [
                   {
@@ -394,6 +394,7 @@
                     ],
                   },
                 ],
+
                 "textarea-fields": ["notizen"],
               },
             },

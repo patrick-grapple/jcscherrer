@@ -179,6 +179,7 @@
                   for (let i = 0; i < groupedRapports.length; i++) {
                     const group = groupedRapports[i];
 
+                    console.log({ group });
                     if (group.kunde?.KUNDE?.length > 0) {
                       continue;
                     }
@@ -255,7 +256,7 @@
                 const rapports = await Promise.all(
                   ids.map(async (id) => {
                     const response = await fetch(
-                      `${remoteUrl}/api/rapports/${id}?filter={"include": [{"relation": "trainer","scope": {"include": [{"relation": "SummerRateBefore"},{"relation":"SummerRateAfter"},{"relation":"WinterRateAfter"},{"relation":"WinterRateBefore"},{"relation":"ClubRate"}]}},{"relation": "kunde","scope": {"include": [{"relation": "KUNDE"}]}}, "platz","gruppe"]}`,
+                      `${remoteUrl}/api/rapports/${id}?filter={"include": [{"relation": "trainer","scope": {"include": [{"relation": "SummerRateBefore"},{"relation":"SummerRateAfter"},{"relation":"WinterRateAfter"},{"relation":"WinterRateBefore"},{"relation":"ClubRate"}]}},{"relation": "kundes","scope": {"include": [{"relation": "KUNDE"}]}}, "platz","gruppe"]}`,
                       {
                         method: "GET",
                         headers: {
@@ -288,16 +289,21 @@
                 }[] = [];
 
                 rapports.forEach((rapport) => {
-                  const index = groupedRapports.findIndex(
-                    (g) => g.kunde?.id === rapport?.kunde?.id
-                  );
-                  if (index === -1) {
-                    groupedRapports.push({
-                      kunde: rapport.kunde,
-                      rapports: [rapport],
-                    });
-                  } else {
-                    groupedRapports[index].rapports.push(rapport);
+                  console.log({ rapport });
+                  for (let i = 0; i < rapport.kundes.length; i++) {
+                    const kunde = rapport.kundes[i];
+                    console.log({ kunde });
+                    const index = groupedRapports.findIndex(
+                      (g) => g.kunde?.id === kunde.id
+                    );
+                    if (index === -1) {
+                      groupedRapports.push({
+                        kunde: kunde,
+                        rapports: [rapport],
+                      });
+                    } else {
+                      groupedRapports[index].rapports.push(rapport);
+                    }
                   }
 
                   groupedRapports = groupedRapports;
@@ -525,7 +531,7 @@
                 };
                 try {
                   const response = await fetch(
-                    `${remoteUrl}/api/rapports/${row.id}?filter={"include": [{"relation": "trainer","scope": {"include": [{"relation": "SummerRateBefore"},{"relation":"SummerRateAfter"},{"relation":"WinterRateAfter"},{"relation":"WinterRateBefore"},{"relation":"ClubRate"}]}}, "platz","gruppe",{"relation": "kunde","scope": {"include": [{"relation": "KUNDE"}]}}]}`,
+                    `${remoteUrl}/api/rapports/${row.id}?filter={"include": [{"relation": "trainer","scope": {"include": [{"relation": "SummerRateBefore"},{"relation":"SummerRateAfter"},{"relation":"WinterRateAfter"},{"relation":"WinterRateBefore"},{"relation":"ClubRate"}]}}, "platz","gruppe",{"relation": "kundes","scope": {"include": [{"relation": "KUNDE"}]}}]}`,
                     {
                       method: "GET",
                       headers: {
@@ -542,16 +548,19 @@
                     rapports: any[];
                   }[] = [];
 
-                  const index = groupedRapports.findIndex(
-                    (g) => g.kunde?.id === rapport.kunde.id
-                  );
-                  if (index === -1) {
-                    groupedRapports.push({
-                      kunde: await getParent(rapport.kunde),
-                      rapports: [rapport],
-                    });
-                  } else {
-                    groupedRapports[index].rapports.push(rapport);
+                  for (let i = 0; i < rapport.kundes.length; i++) {
+                    const kunde = rapport.kundes[i];
+                    const index = groupedRapports.findIndex(
+                      (g) => g.kunde?.id === kunde.id
+                    );
+                    if (index === -1) {
+                      groupedRapports.push({
+                        kunde: await getParent(kunde),
+                        rapports: [rapport],
+                      });
+                    } else {
+                      groupedRapports[index].rapports.push(rapport);
+                    }
                   }
 
                   groupedRapports = groupedRapports;
@@ -595,7 +604,7 @@
                       // change rapport.datum to the format dd.mm.yyyy
 
                       const response = await fetch(
-                        `${remoteUrl}/api/create-bexio-invoice`,
+                        `http://localhost:8080/api/create-bexio-invoice`,
                         {
                           method: "POST",
                           headers: {
@@ -705,7 +714,6 @@
             ],
             "auto-generated-fields": ["id"],
             "field-order": [
-              "id",
               "datum",
               "startzeit",
               "trainingsdauer",
@@ -713,19 +721,22 @@
               "platz",
               "trainingType",
               "kunde",
+              "kundes",
+              "kundeIds",
               "gruppe",
               "notizen",
               "nachholtermin",
               "probetraining",
+              "archived",
               "invoicedIn",
               "invoiceJson",
             ],
 
             "default-values": [
-              {
-                name: "trainingType",
-                value: "private",
-              },
+              // {
+              //   name: "trainingType",
+              //   value: "private",
+              // },
             ],
             "date-fields": [
               {
@@ -765,6 +776,18 @@
               },
             ],
             "relational-fields": [
+              {
+                name: "kundeIds",
+                type: "FAVORITE",
+                editable: true,
+                columns: ["id", "name", "vorname", "geburtstag", "notizen"],
+              },
+              {
+                name: "kundes",
+                type: "FAVORITE",
+                editable: true,
+                columns: ["id", "name", "vorname", "geburtstag", "notizen"],
+              },
               {
                 name: "trainer",
                 editable: true,

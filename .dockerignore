@@ -21,3 +21,5 @@ devspace.yaml
 *.tgz
 Taskfile.yaml
 bitbucket-pipelines.yml
+**/grapi/**
+**/gruim/**
