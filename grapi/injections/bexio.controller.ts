@@ -308,7 +308,13 @@ export class BexioController {
           const isFixplatz = rapport.platzId === 2;
 
           // Get the appropriate product code
+          console.log("rapport.trainingType: "+rapport.trainingType)
+          console.log("groupSize: "+groupSize)
+          console.log("rapport.kunde: "+rapport.kunde)
+          console.log("isFixplatz: "+isFixplatz)
+          console.log("isSummer: "+isSummer)
           const productCode = getGroupProductCode(rapport.trainingType, groupSize, rapport.kunde, isFixplatz, isSummer);
+          console.log("before product")
 
           // Add to a new group for this product code if it doesn't exist
           if (!groupedInvoices[productCode]) {
@@ -456,7 +462,12 @@ export class BexioController {
     };
 
     const isAdult = (kunde: KundeType) => {
-      if (!kunde.geburtstag) return true;
+      console.log("check geburtstag...")
+      if (!kunde || !kunde.geburtstag) {
+        console.log("geburtstag is empty...")
+        return true;
+      }
+      console.log("geburtstag is NOT empty...")
       const age = dayjs().diff(dayjs(kunde.geburtstag), 'year');
       return age >= 18;
     };
