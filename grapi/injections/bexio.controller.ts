@@ -462,18 +462,24 @@ export class BexioController {
       return parseInt(hours) + parseInt(minutes) / 60;
     };
 
+    /*
     const isAdult = (kunde: KundeType) => {
       // troubleshooting the kunde.geburtstag values
       // console.log("check geburtstag...")
       if (!kunde || !kunde.geburtstag) {
-        // console.log("geburtstag is empty...")
+        console.log("geburtstag is empty...")
         return true;
       }
-      // console.log("geburtstag is NOT empty...")
+      console.log("geburtstag is NOT empty...")
       const age = dayjs().diff(dayjs(kunde.geburtstag), 'year');
       return age >= 18;
     };
+    */
+    const isAdult = (kunde: KundeType) => {
+      return !!kunde.KUNDE
+    };
 
+    /*
     const getProductInfo = async (productCode: string) => {
       const Product = await this.Product();
       const product = await Product.findOne({
@@ -486,6 +492,16 @@ export class BexioController {
         throw new Error(`Product with code ${productCode} not found`);
       }
 
+      return product;
+    };
+    */
+    const getProductInfo = async (productCode: string) => {
+      const Product = await this.Product();
+      const product = await Product.findOne({
+        where: {
+          bexioId: productCode
+        }
+      });
       return product;
     };
 
@@ -636,6 +652,7 @@ export class BexioController {
 
         let trainerName = rapportsGroupedByTrainer[trainer][0].trainer.name;
 
+        /*
         for (let productType in rapportsGroupedByTime) {
           let product;
           if (productType.match(/^\d{4}$/)) {
@@ -645,6 +662,14 @@ export class BexioController {
             // Otherwise use the existing trainer rate logic
             product = rapportsGroupedByTime[productType][0].trainer[productType];
           }
+
+          */
+          for (let productType in rapportsGroupedByTime) {
+            let product;
+            product = await getProductInfo(productType);
+            if (!product) {
+              product = rapportsGroupedByTime[productType][0].trainer[productType];
+            }
 
           let positionText = `${product.internname} <br/>`;
 
