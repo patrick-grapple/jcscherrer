@@ -51,7 +51,7 @@
       const rapportId = e.detail?.id;
       console.log({ rapportId });
       const response = await fetch(
-        `${remoteUrl}/api/rapports/${rapportId}?filter={"include": [{"relation": "trainer","scope": {"include": [{"relation": "SummerRateBefore"},{"relation":"SummerRateAfter"},{"relation":"WinterRateAfter"},{"relation":"WinterRateBefore"},{"relation":"ClubRate"}]}},{"relation": "kunde","scope": {"include": [{"relation": "KUNDE"}]}}, "platz","gruppe", "invoices"]}`,
+        `${remoteUrl}/api/rapports/${rapportId}?filter={"include": [{"relation": "trainer","scope": {"include": [{"relation": "SummerRateBefore"},{"relation":"SummerRateAfter"},{"relation":"WinterRateAfter"},{"relation":"WinterRateBefore"},{"relation":"ClubRate"}]}},{"relation": "kundes","scope": {"include": [{"relation": "KUNDE"}]}}, "platz","gruppe", "invoices"]}`,
         {
           method: "GET",
           headers: {
@@ -84,7 +84,7 @@
         ];
 
         const response = await fetch(
-          `${remoteUrl}/api/rapports?filter={"where":{"id":{"inq":[${relatedRapports}]}}, "include": [{"relation": "trainer","scope": {"include": [{"relation": "SummerRateBefore"},{"relation":"SummerRateAfter"},{"relation":"WinterRateAfter"},{"relation":"WinterRateBefore"},{"relation":"ClubRate"}]}},{"relation": "kunde","scope": {"include": [{"relation": "KUNDE"}]}}, "platz","gruppe", "invoices"]}`,
+          `${remoteUrl}/api/rapports?filter={"where":{"id":{"inq":[${relatedRapports}]}}, "include": [{"relation": "trainer","scope": {"include": [{"relation": "SummerRateBefore"},{"relation":"SummerRateAfter"},{"relation":"WinterRateAfter"},{"relation":"WinterRateBefore"},{"relation":"ClubRate"}]}},{"relation": "kundes","scope": {"include": [{"relation": "KUNDE"}]}}, "platz","gruppe", "invoices"]}`,
           {
             method: "GET",
             headers: {
@@ -102,8 +102,10 @@
 
       console.log({ rapport, allRapports });
 
-      console.log(allRapports.find((r) => r.kunde?.KUNDE));
-      let parent = allRapports.find((r) => r.kunde?.KUNDE)?.kunde;
+      console.log(allRapports.find((r) => r.kundes?.map((k) => k.KUNDE)));
+      let parent = allRapports.find(
+        (r) => r.kundes.map((k) => k.KUNDE)?.KUNDE
+      )?.kundes;
       console.log({ parent });
 
       groupedRapports.push({
@@ -702,7 +704,8 @@
                   "trainer",
                   "platz",
                   "trainingType",
-                  "kunde",
+                  "kundes",
+                  "kundeIds",
                   "gruppe",
                   "notizen",
                   "nachholtermin",
@@ -713,6 +716,7 @@
                 "default-values": [
                   {
                     name: "trainingType",
+                    value: "private",
                   },
                 ],
                 "date-fields": [
@@ -753,6 +757,28 @@
                   },
                 ],
                 "textarea-fields": ["notizen"],
+                "relational-fields": [
+                  {
+                    name: "kundeIds",
+                    type: "FAVORITE",
+                    editable: true,
+                    columns: ["id", "name", "vorname", "geburtstag", "notizen"],
+                  },
+                  {
+                    name: "kundes",
+                    type: "FAVORITE",
+                    editable: true,
+                    columns: ["id", "name", "vorname", "geburtstag", "notizen"],
+                  },
+                  {
+                    name: "trainer",
+                    editable: true,
+                    columns: ["id", "vorname", "name", "email"],
+                    dropDownFilter: {
+                      aktiv: true,
+                    },
+                  },
+                ],
               },
             },
             archiveTable: "ArchivedRapport",

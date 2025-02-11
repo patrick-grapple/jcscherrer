@@ -31,7 +31,7 @@
     kundes?: any;
   }[] = [];
   export let selectedDate = "";
-  export let selectedTrainer: any;
+  // export let selectedTrainer: any;
 
   let calendarRef: any;
   function set() {
@@ -147,16 +147,10 @@
 
         return {
           id: createEventId(),
-          title: `${name} ${kundes ? `| ${kundes}` : ""}`,
+          title: `${name}`,
           platz: `${r.platz?.tenniscourt || ""}`,
           notizen: `${r.notizen || ""}`,
-          backgroundColor: ` ${
-            selectedTrainer?.value
-              ? r.kunde
-                ? "#1a5ca3"
-                : "#fed5cb"
-              : r?.trainer?.color || "#1a5ca3"
-          }  `,
+          backgroundColor: ` ${r?.trainer?.color || "#1a5ca3"}  `,
           textColor: `${r?.trainer?.colorFont || "#000"}`,
           borderColor: `${r.kunde ? "#fff" : "#fa7252"}`,
           className: `single-day-event-style ${

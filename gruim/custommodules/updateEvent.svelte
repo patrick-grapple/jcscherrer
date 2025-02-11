@@ -69,8 +69,11 @@
   // check if user is a trainer
   const isUserTrainer = () => {
     // TODO: send a request to the backend to verify if the token is valid
+
     return (
-      localStorage.getItem("token") || window.location.search.includes("token")
+      (localStorage.getItem("token") ||
+        window.location.search.includes("token")) &&
+      !window.location.pathname.includes("admin")
     );
   };
 
@@ -87,7 +90,7 @@
         "trainer",
         "platz",
         "trainingType",
-        "kunde",
+        "kundes",
         "kundeIds",
         "gruppe",
         "notizen",
@@ -103,6 +106,7 @@
           name: "kundeIds",
           type: "FAVORITE",
           editable: true,
+          useFuzzySearch: true,
           columns: [
             "id",
             "bexioId",
@@ -118,7 +122,6 @@
         {
           name: "trainer",
           editable: !isUserTrainer(),
-          // columns: ["id", "name", "vorname", "email", "notizen"],
           columns: ["id", "name", "vorname", "email"],
         },
       ],
@@ -206,6 +209,31 @@
             {
               label: "Mittags Treff",
               value: "mittags_treff",
+            },
+          ],
+        },
+        {
+          name: "trainingsdauer",
+          default: {
+            label: "90min",
+            value: "01:30:00",
+          },
+          options: [
+            {
+              label: "60min",
+              value: "01:00:00",
+            },
+            {
+              label: "90min",
+              value: "01:30:00",
+            },
+            {
+              label: "30min",
+              value: "00:30:00",
+            },
+            {
+              label: "120min",
+              value: "02:00:00",
             },
           ],
         },

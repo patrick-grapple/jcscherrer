@@ -157,9 +157,10 @@
             ],
             "textarea-fields": ["notizen"],
             "default-values": [
-              {
-                name: "trainingType",
-              },
+              // {
+              //   name: "trainingType",
+              //   value: "private",
+              // },
               {
                 name: "invoicedIn",
                 value: null,
@@ -168,6 +169,12 @@
             "relational-fields": [
               {
                 name: "kundeIds",
+                type: "FAVORITE",
+                editable: true,
+                columns: ["id", "name", "vorname", "geburtstag", "notizen"],
+              },
+              {
+                name: "kundes",
                 type: "FAVORITE",
                 editable: true,
                 columns: ["id", "name", "vorname", "geburtstag", "notizen"],

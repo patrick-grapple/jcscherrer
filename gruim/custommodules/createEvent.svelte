@@ -85,7 +85,7 @@
         "trainer",
         "platz",
         "trainingType",
-        "kunde",
+        "kundes",
         "kundeIds",
         "gruppe",
         "notizen",
@@ -242,6 +242,31 @@
             {
               label: "Mittags Treff",
               value: "mittags_treff",
+            },
+          ],
+        },
+        {
+          name: "trainingsdauer",
+          default: {
+            label: "90min",
+            value: "01:30:00",
+          },
+          options: [
+            {
+              label: "60min",
+              value: "01:00:00",
+            },
+            {
+              label: "90min",
+              value: "01:30:00",
+            },
+            {
+              label: "30min",
+              value: "00:30:00",
+            },
+            {
+              label: "120min",
+              value: "02:00:00",
             },
           ],
         },
