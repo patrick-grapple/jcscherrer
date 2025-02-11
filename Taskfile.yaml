@@ -484,7 +484,7 @@ tasks:
         echo "wait on grapi deployments"
         echo "kubectl get grapi -n {{.NS}}"
         kubectl get grapi -n {{.NS}}
-        sleep 5
+        sleep 10
         echo "kubectl wait grapi -n {{.NS}} -l app.kubernetes.io/component=grapi --for condition=Synced"
         kubectl wait grapi -n {{.NS}} -l app.kubernetes.io/component=grapi --for condition=Synced
         kubectl wait gruim -n {{.NS}} -l app.kubernetes.io/component=gruim --for condition=Synced
