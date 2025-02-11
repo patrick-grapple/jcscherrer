@@ -53,7 +53,7 @@ definitions:
           - # prepare external secrets
           - echo -n "${AWS_ACCESS_KEY_ID_SECRETS}" > ./access-key
           - echo -n "${AWS_SECRET_ACCESS_KEY_SECRETS}" > ./secret-access-key
-          - kubectl -n grpl-system create secret generic awssm-secret-jcs --from-file=./access-key  --from-file=./secret-access-key
+          - kubectl -n grpl-system create secret generic awssm-secret-jcs --from-file=./access-key  --from-file=./secret-access-key || true
     - step: &externalsecretsuat
         name: 'Prep external secrets in Cluster'
         script:
