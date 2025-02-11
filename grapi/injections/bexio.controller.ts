@@ -246,6 +246,7 @@ export class BexioController {
       trainerId: number;
       trainingType: string;
       trainingsdauer: string;
+      currentKunde: KundeType;
     };
 
     const groupInvoicesByTrainer = (
@@ -314,7 +315,7 @@ export class BexioController {
           // console.log("rapport.kunde: "+rapport.kunde)
           // console.log("isFixplatz: "+isFixplatz)
           // console.log("isSummer: "+isSummer)
-          const productCode = getGroupProductCode(rapport.trainingType, groupSize, rapport.kunde, isFixplatz, isSummer);
+          const productCode = getGroupProductCode(rapport.trainingType, groupSize, rapport.currentKunde, isFixplatz, isSummer);
           // console.log("before product")
 
           // Add to a new group for this product code if it doesn't exist
@@ -609,6 +610,7 @@ export class BexioController {
       group: {
         kunde: KundeType;
         rapports: RapportType[];
+        currentKunde: KundeType;
       };
     };
 
@@ -617,22 +619,30 @@ export class BexioController {
     let parentRapports = [];
 
     for (let rapport of group.rapports) {
-      if (rapport.kundeIds.includes(group.kunde.id)) {
-        parentRapports.push(rapport);
+      if (group.currentKunde.id === group.kunde.id) {
+        parentRapports.push({ ...rapport, currentKunde: group.currentKunde });
         continue;
       }
-
-      for (let kunde of rapport.kundes) {
-        if (childrenRapports[`${kunde.vorname} ${kunde.name}`]) {
-          childrenRapports[`${kunde.vorname} ${kunde.name}`].push(
-            rapport
-          );
-        } else {
-          childrenRapports[`${kunde.vorname} ${kunde.name}`] = [
-            rapport,
-          ];
+      else {
+        if (!childrenRapports[`${group.currentKunde.vorname} ${group.currentKunde.name}`]) {
+          childrenRapports[`${group.currentKunde.vorname} ${group.currentKunde.name}`] = [];
         }
+        childrenRapports[`${group.currentKunde.vorname} ${group.currentKunde.name}`].push(
+          { ...rapport, currentKunde: group.currentKunde }
+        );
       }
+
+      // for (let kunde of rapport.kundes) {
+      //   if (childrenRapports[`${kunde.vorname} ${kunde.name}`]) {
+      //     childrenRapports[`${kunde.vorname} ${kunde.name}`].push(
+      //       rapport
+      //     );
+      //   } else {
+      //     childrenRapports[`${kunde.vorname} ${kunde.name}`] = [
+      //       rapport,
+      //     ];
+      //   }
+      // }
     }
 
     let positions = [];
@@ -664,12 +674,12 @@ export class BexioController {
           }
 
           */
-          for (let productType in rapportsGroupedByTime) {
-            let product;
-            product = await getProductInfo(productType);
-            if (!product) {
-              product = rapportsGroupedByTime[productType][0].trainer[productType];
-            }
+        for (let productType in rapportsGroupedByTime) {
+          let product;
+          product = await getProductInfo(productType);
+          if (!product) {
+            product = rapportsGroupedByTime[productType][0].trainer[productType];
+          }
 
           let positionText = `${product.internname} <br/>`;
 
@@ -720,11 +730,8 @@ export class BexioController {
 
         for (let productType in rapportsGroupedByTime) {
           let product;
-          if (productType.match(/^\d{4}$/)) {
-            // If productType is a 4-digit code, it's one of our special product codes
-            product = await getProductInfo(productType);
-          } else {
-            // Otherwise use the existing trainer rate logic
+          product = await getProductInfo(productType);
+          if (!product) {
             product = rapportsGroupedByTime[productType][0].trainer[productType];
           }
 
