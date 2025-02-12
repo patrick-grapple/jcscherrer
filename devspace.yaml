@@ -2,20 +2,22 @@ version: v2beta1
 name: jcscherrer
 vars:
   IMAGE_REGISTRY: "grpl"
-  IMAGE_REPO: "jcscherrer"
+  IMAGE_REPO: "jcscherrer-pr"
 functions:
   patch-values-file: |-
-      task patch-values-file
+    task patch-values-file
   patch-values-file-patches-only: |-
-      task patch-values-file-patches-only
+    task patch-values-file-patches-only
   reset-values-file: |-
-      task reset-values-file
+    task reset-values-file
 # This is a list of `pipelines` that DevSpace can execute (you can define your own)
 pipelines:
   build: |-
     build_images --all
   build-app: |-
     build_images jcs
+  build-test: |-
+    build_images test
   # This is the pipeline for the main command: `devspace dev` (or `devspace run-pipeline dev`)
   dev:
     run: |-
@@ -56,6 +58,11 @@ images:
   data:
     image: "${IMAGE_REGISTRY}/${IMAGE_REPO}-data:devspace"
     dockerfile: ./Dockerfile.data
+    buildKit: # {} # implemented for bitbucket pipeline with the patch at the end of this file
+      args: [--platform, 'linux/amd64,linux/arm64']
+  test:
+    image: "${IMAGE_REGISTRY}/${IMAGE_REPO}-test:devspace"
+    dockerfile: ./Dockerfile.test
     buildKit: # {} # implemented for bitbucket pipeline with the patch at the end of this file
       args: [--platform, 'linux/amd64,linux/arm64']
 # This is a list of `deployments` that DevSpace can create for this project

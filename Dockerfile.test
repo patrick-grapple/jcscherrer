@@ -1,2 +1,9 @@
-# run test cases against the deployment
-FROM busybox
+FROM mcr.microsoft.com/playwright:v1.50.1-noble
+WORKDIR /home/pwuser
+# RUN npx -y playwright@1.50.1 install --with-deps
+RUN mkdir -p /home/pwuser/tests && mkdir -p /home/pwuser/.npm && chown -R pwuser /home/pwuser/
+COPY package.json /home/pwuser/
+RUN yarn install
+COPY playwright.config.ts /home/pwuser/
+COPY tests/* /home/pwuser/tests
+RUN chown -R pwuser /home/pwuser/

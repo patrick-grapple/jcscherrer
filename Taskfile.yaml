@@ -476,6 +476,12 @@ tasks:
 
         helm upgrade --install {{.CHART_NAME}} {{.CHART_FOLDER}} --namespace "{{.CHART_NAME_SHORT}}-{{.STAGE}}-{{.GIT_HASH}}" --create-namespace
 
+  test:
+    desc: Deploy the Helm chart to the Grapple cluster
+    cmds:
+      - |
+        echo helm test -n "{{.CHART_NAME_SHORT}}-{{.STAGE}}-{{.GIT_HASH}}" {{.CHART_NAME}} 
+        helm test -n "{{.CHART_NAME_SHORT}}-{{.STAGE}}-{{.GIT_HASH}}" {{.CHART_NAME}} 
 
   update-bitbucket-pr:
     desc: Deploy the Helm chart to the Grapple cluster
