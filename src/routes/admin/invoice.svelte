@@ -304,12 +304,14 @@
                         g.currentKunde?.id === kunde.id
                     );
                     if (index === -1) {
+                      rapport = { ...rapport, currentKunde: kunde };
                       groupedRapports.push({
                         kunde: kunde,
                         rapports: [rapport],
                         currentKunde: kunde,
                       });
                     } else {
+                      rapport = { ...rapport, currentKunde: kunde };
                       groupedRapports[index].rapports.push(rapport);
                     }
                   }
@@ -548,7 +550,7 @@
                     }
                   );
 
-                  const rapport = await response.json();
+                  let rapport = await response.json();
                   console.log({ rapport });
 
                   let groupedRapports: {
@@ -565,12 +567,14 @@
                         g.currentKunde?.id === kunde.id
                     );
                     if (index === -1) {
+                      rapport = { ...rapport, currentKunde: kunde };
                       groupedRapports.push({
                         kunde: await getParent(kunde),
                         rapports: [rapport],
                         currentKunde: kunde,
                       });
                     } else {
+                      rapport = { ...rapport, currentKunde: kunde };
                       groupedRapports[index].rapports.push(rapport);
                     }
                   }

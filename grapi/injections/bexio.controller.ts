@@ -619,16 +619,16 @@ export class BexioController {
     let parentRapports = [];
 
     for (let rapport of group.rapports) {
-      if (group.currentKunde.id === group.kunde.id) {
-        parentRapports.push({ ...rapport, currentKunde: group.currentKunde });
+      if (rapport.currentKunde.id === group.kunde.id) {
+        parentRapports.push(rapport);
         continue;
       }
       else {
-        if (!childrenRapports[`${group.currentKunde.vorname} ${group.currentKunde.name}`]) {
-          childrenRapports[`${group.currentKunde.vorname} ${group.currentKunde.name}`] = [];
+        if (!childrenRapports[`${rapport.currentKunde.vorname} ${rapport.currentKunde.name}`]) {
+          childrenRapports[`${rapport.currentKunde.vorname} ${rapport.currentKunde.name}`] = [];
         }
-        childrenRapports[`${group.currentKunde.vorname} ${group.currentKunde.name}`].push(
-          { ...rapport, currentKunde: group.currentKunde }
+        childrenRapports[`${rapport.currentKunde.vorname} ${rapport.currentKunde.name}`].push(
+          rapport
         );
       }
 
@@ -676,10 +676,15 @@ export class BexioController {
           */
         for (let productType in rapportsGroupedByTime) {
           let product;
+          console.log("productType", productType);
           product = await getProductInfo(productType);
+          console.log("product", product);
           if (!product) {
             product = rapportsGroupedByTime[productType][0].trainer[productType];
+            console.log("product", product);
           }
+
+          console.log("product", product);
 
           let positionText = `${product.internname} <br/>`;
 
@@ -806,6 +811,8 @@ export class BexioController {
     };
 
     try {
+
+      console.log("reqBody", reqBody);
       let res = await postRequest(`${bexioUrl}/kb_invoice`, reqBody);
       res = JSON.parse(res);
 
