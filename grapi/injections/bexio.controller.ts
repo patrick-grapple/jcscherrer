@@ -802,9 +802,9 @@ export class BexioController {
 
     try {
 
-      // console.log("reqBody", reqBody);
-      // let res = await postRequest(`${bexioUrl}/kb_invoice`, reqBody);
-      // res = JSON.parse(res);
+      console.log("reqBody", reqBody);
+      let res = await postRequest(`${bexioUrl}/kb_invoice`, reqBody);
+      res = JSON.parse(res);
 
       await Promise.all(
         group.rapports.map(async (rapport) => {
