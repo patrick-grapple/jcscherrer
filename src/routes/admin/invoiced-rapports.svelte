@@ -376,7 +376,7 @@
                     const rapports = await Promise.all(
                       ids.map(async (id) => {
                         const response = await fetch(
-                          `${remoteUrl}/api/rapports/${id}?filter={"include":["trainer","platz","kunde","gruppe"]}`,
+                          `${remoteUrl}/api/rapports/${id}?filter={"include":["trainer","platz","kundes","gruppe"]}`,
                           {
                             method: "GET",
                             headers: {
@@ -510,7 +510,7 @@
                   ): Promise<any> => {
                     // delete invoices
                     const response = await fetch(
-                      `${remoteUrl}/api/rapports/${row.id}?filter={"include":["trainer","platz","kunde","gruppe"]}`,
+                      `${remoteUrl}/api/rapports/${row.id}?filter={"include":["trainer","platz","kundes","gruppe"]}`,
                       {
                         method: "GET",
                         headers: {
