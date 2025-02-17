@@ -130,6 +130,51 @@
             ],
             "dropdown-fields": [
               {
+                name: "trainingType",
+                default: {
+                  label: "private",
+                  value: "private",
+                },
+                options: [
+                  {
+                    label: "private",
+                    value: "private",
+                  },
+                  {
+                    label: "gruppe (spontan)",
+                    value: "gruppe",
+                  },
+                  {
+                    label: "Mannschaftstraining (ohne Platzmiete)",
+                    value: "mannschaft",
+                  },
+                  {
+                    label: "Mannschaftstraining (inkl. Platzmiete)",
+                    value: "mannschaft_platz",
+                  },
+                  {
+                    label: "Aufschlagtraining",
+                    value: "aufschlag",
+                  },
+                  {
+                    label: "Fitness Tennis",
+                    value: "fitness_tennis",
+                  },
+                  {
+                    label: "Morning Treff",
+                    value: "morning_treff",
+                  },
+                  {
+                    label: "After Work",
+                    value: "after_work",
+                  },
+                  {
+                    label: "Mittags Treff",
+                    value: "mittags_treff",
+                  },
+                ],
+              },
+              {
                 name: "trainingsdauer",
                 default: {
                   label: "90min",
@@ -171,13 +216,27 @@
                 name: "kundeIds",
                 type: "FAVORITE",
                 editable: true,
-                columns: ["id", "name", "vorname", "geburtstag", "notizen"],
+                columns: [
+                  "name",
+                  "vorname",
+                  "geburtstag",
+                  "ort",
+                  "id",
+                  "bexioId",
+                ],
               },
               {
                 name: "kundes",
                 type: "FAVORITE",
                 editable: true,
-                columns: ["id", "name", "vorname", "geburtstag", "notizen"],
+                columns: [
+                  "name",
+                  "vorname",
+                  "geburtstag",
+                  "ort",
+                  "id",
+                  "bexioId",
+                ],
               },
               {
                 name: "trainer",
