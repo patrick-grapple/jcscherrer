@@ -78,16 +78,16 @@
 
   let selectedTrainer: any = "";
 
-  let URL = `${process.env.SVELTE_APP_REMOTE_URL}/api/rapports?filter={"include":["trainer","platz","kunde","gruppe"]}`;
+  let URL = `${process.env.SVELTE_APP_REMOTE_URL}/api/rapports?filter={"include":["trainer","platz","kundes","gruppe"]}`;
 
   let updateRapports = async () => {
     // get the list of rapports for the selected trainer
     localStorage.setItem("trainer", JSON.stringify(selectedTrainer));
 
     if (selectedTrainer?.value) {
-      URL = `${process.env.SVELTE_APP_REMOTE_URL}/api/rapports?filter={"include":["trainer","platz","kunde","gruppe"],"where":{"trainerId":${selectedTrainer.value}}}`;
+      URL = `${process.env.SVELTE_APP_REMOTE_URL}/api/rapports?filter={"include":["trainer","platz","kundes","gruppe"],"where":{"trainerId":${selectedTrainer.value}}}`;
     } else {
-      URL = `${process.env.SVELTE_APP_REMOTE_URL}/api/rapports?filter={"include":["trainer","platz","kunde","gruppe"]}`;
+      URL = `${process.env.SVELTE_APP_REMOTE_URL}/api/rapports?filter={"include":["trainer","platz","kundes","gruppe"]}`;
     }
 
     let rapports = await fetch(URL);
@@ -125,9 +125,9 @@
     } = JSON.parse(localStorage.getItem("trainer") || "{}");
 
     if (savedTrainer?.value) {
-      URL = `${process.env.SVELTE_APP_REMOTE_URL}/api/rapports?filter={"include":["trainer","platz","kunde","gruppe"],"where":{"trainerId":${savedTrainer.value}}}`;
+      URL = `${process.env.SVELTE_APP_REMOTE_URL}/api/rapports?filter={"include":["trainer","platz","kundes","gruppe"],"where":{"trainerId":${savedTrainer.value}}}`;
     } else {
-      URL = `${process.env.SVELTE_APP_REMOTE_URL}/api/rapports?filter={"include":["trainer","platz","kunde","gruppe"]}`;
+      URL = `${process.env.SVELTE_APP_REMOTE_URL}/api/rapports?filter={"include":["trainer","platz","kundes","gruppe"]}`;
     }
 
     let rapports = await fetch(URL);
