@@ -288,14 +288,14 @@ export class BexioController {
       };
 
       // Group rapports by training session to determine group size
-      const rapportsBySession: { [key: string]: RapportType[] } = {};
-      invoices.forEach(rapport => {
-        const sessionKey = `${rapport.datum}-${rapport.startzeit}-${rapport.trainerId}`;
-        if (!rapportsBySession[sessionKey]) {
-          rapportsBySession[sessionKey] = [];
-        }
-        rapportsBySession[sessionKey].push(rapport);
-      });
+      // const rapportsBySession: { [key: string]: RapportType[] } = {};
+      // invoices.forEach(rapport => {
+      //   const sessionKey = `${rapport.datum}-${rapport.startzeit}-${rapport.trainerId}`;
+      //   if (!rapportsBySession[sessionKey]) {
+      //     rapportsBySession[sessionKey] = [];
+      //   }
+      //   rapportsBySession[sessionKey].push(rapport);
+      // });
 
 
       invoices.map((rapport) => {
@@ -303,7 +303,11 @@ export class BexioController {
         if (rapport.trainingType === "gruppe" ||
           rapport.trainingType === "mannschaft" ||
           rapport.trainingType === "mannschaft_platz" ||
-          rapport.trainingType === "aufschlag") {
+          rapport.trainingType === "aufschlag" ||
+          rapport.trainingType === "fitness_tennis" ||
+          rapport.trainingType === "morning_treff" ||
+          rapport.trainingType === "after_work" ||
+          rapport.trainingType === "mittags_treff") {
 
           const sessionKey = `${rapport.datum}-${rapport.startzeit}-${rapport.trainerId}`;
           const groupSize = rapport?.kundeIds?.length;
@@ -656,18 +660,7 @@ export class BexioController {
 
         let trainerName = rapportsGroupedByTrainer[trainer][0].trainer.name;
 
-        /*
-        for (let productType in rapportsGroupedByTime) {
-          let product;
-          if (productType.match(/^\d{4}$/)) {
-            // If productType is a 4-digit code, it's one of our special product codes
-            product = await getProductInfo(productType);
-          } else {
-            // Otherwise use the existing trainer rate logic
-            product = rapportsGroupedByTime[productType][0].trainer[productType];
-          }
 
-          */
         for (let productType in rapportsGroupedByTime) {
           let product;
           console.log("productType", productType);
@@ -728,11 +721,14 @@ export class BexioController {
         let trainerName = rapportsGroupedByTrainer[trainer][0].trainer.name;
 
         for (let productType in rapportsGroupedByTime) {
+          console.log("productType", productType);
           let product;
           product = await getProductInfo(productType);
           if (!product) {
             product = rapportsGroupedByTime[productType][0].trainer[productType];
           }
+
+          console.log("product", product);
 
           let positionText = `${product.internname} <br/>`;
 

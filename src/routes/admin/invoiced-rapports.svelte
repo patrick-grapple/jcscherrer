@@ -714,10 +714,10 @@
                   "id",
                 ],
                 "default-values": [
-                  {
-                    name: "trainingType",
-                    value: "private",
-                  },
+                  // {
+                  //   name: "trainingType",
+                  //   value: "private",
+                  // },
                 ],
                 "date-fields": [
                   {
