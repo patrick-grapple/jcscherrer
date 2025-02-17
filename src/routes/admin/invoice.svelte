@@ -174,7 +174,11 @@
                 completedInvoices = 0;
 
                 const groupRapportsByParent = async (
-                  groupedRapports: { kunde: any; rapports: any[] }[]
+                  groupedRapports: {
+                    kunde: any;
+                    rapports: any[];
+                    currentKunde: any;
+                  }[]
                 ) => {
                   for (let i = 0; i < groupedRapports.length; i++) {
                     const group = groupedRapports[i];
@@ -216,7 +220,7 @@
                         continue;
                       }
                       const response1 = await fetch(
-                        `${remoteUrl}/api/kundes?filter={"where":{"bexioId":${data[0].contactId}}}`,
+                        `${remoteUrl}/api/kundes?filter={"where":{"bexioId":${data[0].contactId}},"include":["KUNDE"]}`,
                         {
                           method: "GET",
                           headers: {
@@ -286,6 +290,7 @@
                 let groupedRapports: {
                   kunde: any;
                   rapports: any[];
+                  currentKunde: any;
                 }[] = [];
 
                 rapports.forEach((rapport) => {
@@ -294,14 +299,19 @@
                     const kunde = rapport.kundes[i];
                     console.log({ kunde });
                     const index = groupedRapports.findIndex(
-                      (g) => g.kunde?.id === kunde.id
+                      (g) =>
+                        g.kunde?.id === kunde.id &&
+                        g.currentKunde?.id === kunde.id
                     );
                     if (index === -1) {
+                      rapport = { ...rapport, currentKunde: kunde };
                       groupedRapports.push({
                         kunde: kunde,
                         rapports: [rapport],
+                        currentKunde: kunde,
                       });
                     } else {
+                      rapport = { ...rapport, currentKunde: kunde };
                       groupedRapports[index].rapports.push(rapport);
                     }
                   }
@@ -540,25 +550,31 @@
                     }
                   );
 
-                  const rapport = await response.json();
+                  let rapport = await response.json();
                   console.log({ rapport });
 
                   let groupedRapports: {
                     kunde: any;
                     rapports: any[];
+                    currentKunde: any;
                   }[] = [];
 
                   for (let i = 0; i < rapport.kundes.length; i++) {
                     const kunde = rapport.kundes[i];
                     const index = groupedRapports.findIndex(
-                      (g) => g.kunde?.id === kunde.id
+                      (g) =>
+                        g.kunde?.id === kunde.id &&
+                        g.currentKunde?.id === kunde.id
                     );
                     if (index === -1) {
+                      rapport = { ...rapport, currentKunde: kunde };
                       groupedRapports.push({
                         kunde: await getParent(kunde),
                         rapports: [rapport],
+                        currentKunde: kunde,
                       });
                     } else {
+                      rapport = { ...rapport, currentKunde: kunde };
                       groupedRapports[index].rapports.push(rapport);
                     }
                   }

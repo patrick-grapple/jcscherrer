@@ -246,6 +246,7 @@ export class BexioController {
       trainerId: number;
       trainingType: string;
       trainingsdauer: string;
+      currentKunde: KundeType;
     };
 
     const groupInvoicesByTrainer = (
@@ -287,34 +288,32 @@ export class BexioController {
       };
 
       // Group rapports by training session to determine group size
-      const rapportsBySession: { [key: string]: RapportType[] } = {};
-      invoices.forEach(rapport => {
-        const sessionKey = `${rapport.datum}-${rapport.startzeit}-${rapport.trainerId}`;
-        if (!rapportsBySession[sessionKey]) {
-          rapportsBySession[sessionKey] = [];
-        }
-        rapportsBySession[sessionKey].push(rapport);
-      });
+      // const rapportsBySession: { [key: string]: RapportType[] } = {};
+      // invoices.forEach(rapport => {
+      //   const sessionKey = `${rapport.datum}-${rapport.startzeit}-${rapport.trainerId}`;
+      //   if (!rapportsBySession[sessionKey]) {
+      //     rapportsBySession[sessionKey] = [];
+      //   }
+      //   rapportsBySession[sessionKey].push(rapport);
+      // });
+
 
       invoices.map((rapport) => {
         // Handle special training types and group trainings
         if (rapport.trainingType === "gruppe" ||
           rapport.trainingType === "mannschaft" ||
           rapport.trainingType === "mannschaft_platz" ||
-          rapport.trainingType === "aufschlag") {
+          rapport.trainingType === "aufschlag" ||
+          rapport.trainingType === "fitness_tennis" ||
+          rapport.trainingType === "morning_treff" ||
+          rapport.trainingType === "after_work" ||
+          rapport.trainingType === "mittags_treff") {
 
           const sessionKey = `${rapport.datum}-${rapport.startzeit}-${rapport.trainerId}`;
-          const groupSize = rapportsBySession[sessionKey].length;
+          const groupSize = rapport?.kundeIds?.length;
           const isFixplatz = rapport.platzId === 2;
 
-          // Get the appropriate product code
-          // troubleshooting stuff
-          // console.log("rapport.trainingType: "+rapport.trainingType)
-          // console.log("groupSize: "+groupSize)
-          // console.log("rapport.kunde: "+rapport.kunde)
-          // console.log("isFixplatz: "+isFixplatz)
-          // console.log("isSummer: "+isSummer)
-          const productCode = getGroupProductCode(rapport.trainingType, groupSize, rapport.kunde, isFixplatz, isSummer);
+          const productCode = getGroupProductCode(rapport.trainingType, groupSize, rapport.currentKunde, isFixplatz, isSummer);
           // console.log("before product")
 
           // Add to a new group for this product code if it doesn't exist
@@ -462,18 +461,24 @@ export class BexioController {
       return parseInt(hours) + parseInt(minutes) / 60;
     };
 
+    /*
     const isAdult = (kunde: KundeType) => {
       // troubleshooting the kunde.geburtstag values
       // console.log("check geburtstag...")
       if (!kunde || !kunde.geburtstag) {
-        // console.log("geburtstag is empty...")
+        console.log("geburtstag is empty...")
         return true;
       }
-      // console.log("geburtstag is NOT empty...")
+      console.log("geburtstag is NOT empty...")
       const age = dayjs().diff(dayjs(kunde.geburtstag), 'year');
       return age >= 18;
     };
+    */
+    const isAdult = (kunde: KundeType) => {
+      return !!kunde.KUNDE
+    };
 
+    /*
     const getProductInfo = async (productCode: string) => {
       const Product = await this.Product();
       const product = await Product.findOne({
@@ -486,6 +491,16 @@ export class BexioController {
         throw new Error(`Product with code ${productCode} not found`);
       }
 
+      return product;
+    };
+    */
+    const getProductInfo = async (productCode: string) => {
+      const Product = await this.Product();
+      const product = await Product.findOne({
+        where: {
+          interncode: productCode
+        }
+      });
       return product;
     };
 
@@ -593,6 +608,7 @@ export class BexioController {
       group: {
         kunde: KundeType;
         rapports: RapportType[];
+        currentKunde: KundeType;
       };
     };
 
@@ -601,22 +617,30 @@ export class BexioController {
     let parentRapports = [];
 
     for (let rapport of group.rapports) {
-      if (rapport.kundeIds.includes(group.kunde.id)) {
+      if (rapport.currentKunde.id === group.kunde.id) {
         parentRapports.push(rapport);
         continue;
       }
-
-      for (let kunde of rapport.kundes) {
-        if (childrenRapports[`${kunde.vorname} ${kunde.name}`]) {
-          childrenRapports[`${kunde.vorname} ${kunde.name}`].push(
-            rapport
-          );
-        } else {
-          childrenRapports[`${kunde.vorname} ${kunde.name}`] = [
-            rapport,
-          ];
+      else {
+        if (!childrenRapports[`${rapport.currentKunde.vorname} ${rapport.currentKunde.name}`]) {
+          childrenRapports[`${rapport.currentKunde.vorname} ${rapport.currentKunde.name}`] = [];
         }
+        childrenRapports[`${rapport.currentKunde.vorname} ${rapport.currentKunde.name}`].push(
+          rapport
+        );
       }
+
+      // for (let kunde of rapport.kundes) {
+      //   if (childrenRapports[`${kunde.vorname} ${kunde.name}`]) {
+      //     childrenRapports[`${kunde.vorname} ${kunde.name}`].push(
+      //       rapport
+      //     );
+      //   } else {
+      //     childrenRapports[`${kunde.vorname} ${kunde.name}`] = [
+      //       rapport,
+      //     ];
+      //   }
+      // }
     }
 
     let positions = [];
@@ -636,15 +660,18 @@ export class BexioController {
 
         let trainerName = rapportsGroupedByTrainer[trainer][0].trainer.name;
 
+
         for (let productType in rapportsGroupedByTime) {
           let product;
-          if (productType.match(/^\d{4}$/)) {
-            // If productType is a 4-digit code, it's one of our special product codes
-            product = await getProductInfo(productType);
-          } else {
-            // Otherwise use the existing trainer rate logic
+          console.log("productType", productType);
+          product = await getProductInfo(productType);
+          console.log("product", product);
+          if (!product) {
             product = rapportsGroupedByTime[productType][0].trainer[productType];
+            console.log("product", product);
           }
+
+          console.log("product", product);
 
           let positionText = `${product.internname} <br/>`;
 
@@ -694,14 +721,14 @@ export class BexioController {
         let trainerName = rapportsGroupedByTrainer[trainer][0].trainer.name;
 
         for (let productType in rapportsGroupedByTime) {
+          console.log("productType", productType);
           let product;
-          if (productType.match(/^\d{4}$/)) {
-            // If productType is a 4-digit code, it's one of our special product codes
-            product = await getProductInfo(productType);
-          } else {
-            // Otherwise use the existing trainer rate logic
+          product = await getProductInfo(productType);
+          if (!product) {
             product = rapportsGroupedByTime[productType][0].trainer[productType];
           }
+
+          console.log("product", product);
 
           let positionText = `${product.internname} <br/>`;
 
@@ -774,6 +801,8 @@ export class BexioController {
     };
 
     try {
+
+      console.log("reqBody", reqBody);
       let res = await postRequest(`${bexioUrl}/kb_invoice`, reqBody);
       res = JSON.parse(res);
 
