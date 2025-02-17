@@ -297,6 +297,7 @@ export class BexioController {
         rapportsBySession[sessionKey].push(rapport);
       });
 
+
       invoices.map((rapport) => {
         // Handle special training types and group trainings
         if (rapport.trainingType === "gruppe" ||
@@ -305,16 +306,9 @@ export class BexioController {
           rapport.trainingType === "aufschlag") {
 
           const sessionKey = `${rapport.datum}-${rapport.startzeit}-${rapport.trainerId}`;
-          const groupSize = rapportsBySession[sessionKey].length;
+          const groupSize = rapport?.kundeIds?.length;
           const isFixplatz = rapport.platzId === 2;
 
-          // Get the appropriate product code
-          // troubleshooting stuff
-          // console.log("rapport.trainingType: "+rapport.trainingType)
-          // console.log("groupSize: "+groupSize)
-          // console.log("rapport.kunde: "+rapport.kunde)
-          // console.log("isFixplatz: "+isFixplatz)
-          // console.log("isSummer: "+isSummer)
           const productCode = getGroupProductCode(rapport.trainingType, groupSize, rapport.currentKunde, isFixplatz, isSummer);
           // console.log("before product")
 
@@ -500,7 +494,7 @@ export class BexioController {
       const Product = await this.Product();
       const product = await Product.findOne({
         where: {
-          bexioId: productCode
+          interncode: productCode
         }
       });
       return product;
