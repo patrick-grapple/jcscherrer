@@ -107,17 +107,7 @@
           type: "FAVORITE",
           editable: true,
           useFuzzySearch: true,
-          columns: [
-            "id",
-            "bexioId",
-            "name",
-            "vorname",
-            "ort",
-            "geburtstag",
-            "phone",
-            "phoneMobile",
-            "notizen",
-          ],
+          columns: ["name", "vorname", "geburtstag", "ort", "id", "bexioId"],
         },
         {
           name: "trainer",

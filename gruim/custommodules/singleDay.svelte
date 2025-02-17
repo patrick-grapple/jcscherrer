@@ -29,6 +29,7 @@
     trainer: any;
     notizen?: string;
     kundes?: any;
+    trainingType?: string;
   }[] = [];
   export let selectedDate = "";
   // export let selectedTrainer: any;
@@ -87,13 +88,21 @@
         let platz = args.event._def.extendedProps.platz;
         let timeText = args.timeText;
         let notizen = args.event._def.extendedProps.notizen;
+        let isGroupTraining =
+          args.event._def.extendedProps.rapport.trainingType !== "private";
+
+        console.log(args.event._def.extendedProps.rapport.trainingType);
+
+        const groupIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-users"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>`;
 
         let availableRows = difference / 30;
         if (availableRows >= 4) {
           return {
             html: `<div class="cursor-pointer" title="${title} ${platz} ${notizen}" >
             <p class="truncate text-sm">${timeText}</p>
-            <p class="truncate text-sm">${title}</p>
+            <p class="truncate text-sm flex items-center gap-2">${title} 
+            ${isGroupTraining ? `${groupIcon}` : ""}
+            </p>
             <p class="truncate text-sm">${platz}</p>
             <p class="truncate text-sm">${notizen}</p>
            </div>`,
@@ -102,27 +111,34 @@
           return {
             html: `<div class="cursor-pointer" title="${title} ${platz} ${notizen}" >
             <p class="truncate text-sm">${timeText}</p>
-            <p class="truncate text-sm">${title}</p>
-            <p class="truncate text-sm">${platz ? `| ${platz}` : ""} ${
+<p class="truncate text-sm flex ">${title} 
+            
+            </p>
+            <p class="truncate text-sm items-center gap-2">${platz ? `| ${platz}` : ""} ${
               notizen ? `| ${notizen}` : ""
-            }</p>
+            } ${isGroupTraining ? `${groupIcon}` : ""}</p>
+
            </div>`,
           };
         } else if (availableRows >= 2) {
           return {
             html: `<div class="cursor-pointer" title="${title} ${platz} ${notizen}" >
               <p class="truncate text-sm">${timeText}</p>
-              <p class="truncate text-sm">${title} ${
-                platz ? `| ${platz}` : ""
-              } ${notizen ? `| ${notizen}` : ""}</p>
+              <p class="truncate text-sm flex items-center gap-2">${title}
+              
+              
+              ${platz ? `| ${platz}` : ""} ${notizen ? `| ${notizen}` : ""} ${isGroupTraining ? `${groupIcon}` : ""}</p>
              </div>`,
           };
         } else {
           return {
             html: `<div class="cursor-pointer" title="${title} ${platz} ${notizen}" >
-              <p class="truncate text-sm">${timeText} | ${title} ${
+              <p class="truncate text-sm">${timeText} | ${title}  ${
                 platz ? `| ${platz}` : ""
-              } ${notizen ? `| ${notizen}` : ""}</p>
+              } ${notizen ? `| ${notizen}` : ""} 
+              ${isGroupTraining ? `${groupIcon}` : ""}
+              </p>
+
              </div>`,
           };
         }
