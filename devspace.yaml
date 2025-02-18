@@ -120,7 +120,7 @@ dev:
     # Search for the container that runs this image
     labelSelector:
       app.kubernetes.io/name: gruim
-    devImage: docker.io/grpl/gruim:0.2.10
+    devImage: docker.io/grpl/gruim:0.2.9
     env:
       - name: DEV
         value: "true"
