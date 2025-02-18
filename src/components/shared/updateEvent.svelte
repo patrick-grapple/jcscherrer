@@ -44,7 +44,13 @@
       "boolean-fields": ["probetraining", "nachholtermin", "archived"],
       "relational-fields": [
         {
-          name: "kundeId",
+          name: "kundeIds",
+          type: "FAVORITE",
+          editable: true,
+          columns: ["name", "vorname", "geburtstag", "ort", "id", "bexioId"],
+        },
+        {
+          name: "kundes",
           type: "FAVORITE",
           editable: true,
           columns: ["name", "vorname", "geburtstag", "ort", "id", "bexioId"],

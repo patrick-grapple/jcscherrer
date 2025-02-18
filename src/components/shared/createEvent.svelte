@@ -93,7 +93,14 @@
       ],
       "relational-fields": [
         {
-          name: "kunde",
+          name: "kundeIds",
+          type: "FAVORITE",
+          editable: true,
+          useFuzzySearch: true,
+          columns: ["name", "vorname", "geburtstag", "ort", "id", "bexioId"],
+        },
+        {
+          name: "kundes",
           type: "FAVORITE",
           editable: true,
           useFuzzySearch: true,
