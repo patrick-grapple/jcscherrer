@@ -4,6 +4,8 @@ silent: true
 
 vars:
   VALUES_YAML_PATH: "chart/values.yaml"
+  APP_NAME: "jcs"
+  BITBUCKET_PATH: "jcs"
   GRAPI_INJECTION_FOLDER: "grapi"
   GRUIM_INJECTION_FOLDER: "gruim"
   BASE: "gras"
@@ -438,8 +440,8 @@ tasks:
         if [ -f ${VALUES_STAGE} ]; then
 
           # patch data container:
-          yq e -i '.gras.grapi.initContainers[0].spec.image = "grpl/jcs-{{.STAGE}}-data:{{.TAG}}"' ${VALUES_STAGE} || true
-          yq e -i '.gras.grapi.initContainers[1].spec.image = "grpl/jcs-{{.STAGE}}-data:{{.TAG}}"' ${VALUES_STAGE} || true
+          yq e -i '.gras.grapi.initContainers[0].spec.image = "grpl/{{.APP_NAME}-{{.STAGE}}-data:{{.TAG}}"' ${VALUES_STAGE} || true
+          yq e -i '.gras.grapi.initContainers[1].spec.image = "grpl/{{.APP_NAME}-{{.STAGE}}-data:{{.TAG}}"' ${VALUES_STAGE} || true
 
           VALUES_FILE_COMMAND=" --values ${VALUES_STAGE} "
           echo "VALUES_FILE_STAGE: ${VALUES_FILE_STAGE}"
@@ -493,7 +495,7 @@ tasks:
         GRAPIURL=$(kubectl get ing -n {{.NS}} -l app.kubernetes.io/name=grapi -o jsonpath="{.items[0].spec.rules[0].host}")
         echo "GRAPIURL: ${GRAPIURL}"
         if [ "${BITBUCKET_PR_ID}" != "" ]; then
-          curl https://api.bitbucket.org/2.0/repositories/wolke7-patrick/jcs/pullrequests/${BITBUCKET_PR_ID}/comments \
+          curl https://api.bitbucket.org/2.0/repositories/wolke7-patrick/{{.BITBUCKET_PATH}/pullrequests/${BITBUCKET_PR_ID}/comments \
             -u ${bbuser}:${bbpw} \
             --request POST \
             --header 'Content-Type: application/json' \
