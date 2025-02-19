@@ -126,7 +126,6 @@ tasks:
         yq e -i '.vars.IMAGE_REGISTRY = "{{.IMAGE_REGISTRY}}"' devspace.yaml
         yq e -i '.vars.IMAGE_REPO = "{{.IMAGE_REPO}}"' devspace.yaml
         devspace build --skip-push --tag {{.TAG}} -n default --no-warn
-        # devspace run-pipeline build-app --skip-push --tag {{.TAG}} -n default --no-warn
 
   build-and-push-images:
     desc: Build the images
@@ -135,7 +134,6 @@ tasks:
         yq e -i '.vars.IMAGE_REGISTRY = "{{.IMAGE_REGISTRY}}"' devspace.yaml
         yq e -i '.vars.IMAGE_REPO = "{{.IMAGE_REPO}}"' devspace.yaml
         devspace build --tag {{.TAG}} -n default --no-warn
-        # devspace run-pipeline build-app --tag {{.TAG}} -n default --no-warn
 
   build-images-local:
     desc: Build the images
@@ -182,7 +180,7 @@ tasks:
         FINDFILES=$(if [[ "$OSTYPE" == "msys"* ]]; then find ${FOLDER} -name '\*.sh' -or -name '\*.bash'; else find ${FOLDER} -name '*.sh' -or -name '*.bash'; fi)
         BASE="{{.BASE}}"  # Ensuring BASE is enclosed in quotes for full path reference
         if yq -e ".${BASE}.${FOLDER}" {{.VALUES_YAML_PATH}} >/dev/null; then
-          for file_path in $(${FINDFILES}); do  
+          for file_path in $(${FINDFILES}); do
             group_name=$(echo ${file_path} | sed "s,${FOLDER}/,,g" | \
               cut -d/ -f1)
             file_name=$(echo ${file_path} | sed "s,${FOLDER}/,,g" | \
@@ -279,7 +277,6 @@ tasks:
         if yq -e ".${BASE}.${FOLDER}" {{.VALUES_YAML_PATH}} >/dev/null; then
           # echo "${FINDFILES}"
           for file_path in $(echo "${FINDFILES}"); do
-            # echo $file_path
             group_name=$(echo ${file_path} | sed "s,${FOLDER}/,,g" | \
               cut -d/ -f1)
             file_name=$(echo ${file_path} | sed "s,${FOLDER}/,,g" | \
@@ -304,7 +301,7 @@ tasks:
             yq -i "del(.${BASE}.${FOLDER}.${group_name}[] | \
               select(.name == \"${injection_name}\"))" {{.VALUES_YAML_PATH}}
             yq -i ".${BASE}.${FOLDER}.${group_name} += [load_props(\"${base64_content_file}\")]" \
-              {{.VALUES_YAML_PATH}} 
+              {{.VALUES_YAML_PATH}}
           done
           rm ${base64_content_file}
         else
@@ -317,9 +314,9 @@ tasks:
         FOLDER={{.GRUIM_INJECTION_FOLDER}}
         BASE64=$(if [[ "$OSTYPE" == "darwin"* ]]; then echo "base64"; else echo "base64 -w 0"; fi)
         SED=$(if [[ "$OSTYPE" == "darwin"* ]]; then echo 'sed -i ".bak"'; else echo "sed -i"; fi)
+        FINDFILES="$(if [[ "$OSTYPE" == "msys"* ]]; then find ${FOLDER}/${cm} -name '\*.svelte' -or -name '\*.jsx'; else find ${FOLDER}/${cm} -name '*.svelte' -or -name '*.jsx'; fi)
         BASE="{{.BASE}}"  # Ensuring BASE is enclosed in quotes for full path reference
         cm="custommodules"
-        FINDFILES=$(if [[ "$OSTYPE" == "msys"* ]]; then find ${FOLDER}/${cm} -name '\*.svelte'; else find ${FOLDER}/${cm} -name '*.svelte'; fi)
         if yq -e ".${BASE}.${FOLDER}" {{.VALUES_YAML_PATH}} >/dev/null; then
           yq -i "del(.${BASE}.${FOLDER}.${cm}[])" {{.VALUES_YAML_PATH}}
           # echo "${FINDFILES}"
@@ -343,7 +340,7 @@ tasks:
             echo "patching: ${FOLDER} - ${cm} - ${injection_name} - \
               ${file_name}"
             yq -i ".${BASE}.${FOLDER}.${cm} += [load_props(\"${base64_content_file}\")]" \
-              {{.VALUES_YAML_PATH}} 
+              {{.VALUES_YAML_PATH}}
           done
           rm ${base64_content_file}
         else
